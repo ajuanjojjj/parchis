@@ -25,12 +25,17 @@ export function PixiBoard() {
 
 		async function loadAssets() {
 			const boardTexture = await Assets.load<Texture>("/assets/board.svg");
-			const fichaTexture = await Assets.load<Texture>("/assets/piece.svg");
+			await Assets.load([
+				"/assets/piece_red.svg",
+				"/assets/piece_blue.svg",
+				"/assets/piece_green.svg",
+				"/assets/piece_yellow.svg",
+			]);
 
-			setup(boardTexture, fichaTexture);
+			setup(boardTexture);
 		}
 
-		function setup(boardTexture: Texture, fichaTexture: Texture) {
+		function setup(boardTexture: Texture) {
 			const board = new Sprite(boardTexture);
 			board.width = app.canvas.width;
 			board.height = app.canvas.height;
@@ -40,15 +45,12 @@ export function PixiBoard() {
 			});
 			app.stage.addChild(board);
 
-			const piece1 = new Piece("red", 1).setTexture(fichaTexture);
-			app.stage.addChild(piece1.sprite);
-
-			// for (let i = 0; i < 4; i++) {
-			// 	app.stage.addChild(new Piece("red", i + 1).setTexture(fichaTexture).sprite);
-			// 	app.stage.addChild(new Piece("blue", i + 1).setTexture(fichaTexture).sprite);
-			// 	app.stage.addChild(new Piece("green", i + 1).setTexture(fichaTexture).sprite);
-			// 	app.stage.addChild(new Piece("yellow", i + 1).setTexture(fichaTexture).sprite);
-			// }
+			for (let i = 0; i < 4; i++) {
+				app.stage.addChild(new Piece("red", i + 1).sprite);
+				app.stage.addChild(new Piece("blue", i + 1).sprite);
+				app.stage.addChild(new Piece("green", i + 1).sprite);
+				app.stage.addChild(new Piece("yellow", i + 1).sprite);
+			}
 		}
 
 

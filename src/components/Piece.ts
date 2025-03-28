@@ -1,4 +1,4 @@
-import { Sprite, type FederatedPointerEvent, type Texture } from "pixi.js";
+import { Assets, Sprite, type FederatedPointerEvent, type Texture } from "pixi.js";
 import { gsap } from "gsap"; // To animate the movement
 import { actuallyPositions } from "./positions";
 
@@ -23,6 +23,7 @@ export class Piece {
 		sprite.anchor.set(0.5);
 		sprite.eventMode = 'static'; // Enables interactions like pointer/touch events
 		sprite.cursor = 'pointer';   // Shows hand cursor like buttonMode did
+		Assets.load(`/assets/piece_${color}.svg`).then(texture => sprite.texture = texture); // Load the texture from the assets folder
 
 		// Dragging logic
 		sprite
