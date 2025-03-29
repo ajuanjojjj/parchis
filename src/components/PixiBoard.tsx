@@ -2,7 +2,7 @@ import { useEffect, useRef } from "react";
 import { Application, Assets, Sprite, type Texture } from "pixi.js";
 import { Piece } from "./Piece";
 
-export function PixiBoard() {
+export function PixiBoard(props: { id: string; }) {
 	const pixiContainer = useRef<HTMLDivElement>(null);
 	const appRef = useRef<Application | null>(null);
 
@@ -17,8 +17,6 @@ export function PixiBoard() {
 			appRef.current = app;
 			if (pixiContainer.current != null) {
 				pixiContainer.current.innerHTML = ""; // Clear previous content
-				app.canvas.style.maxWidth = "100%";
-				app.canvas.style.maxHeight = "100%";
 				pixiContainer.current.appendChild(app.canvas);
 			}
 		});
@@ -46,11 +44,15 @@ export function PixiBoard() {
 			app.stage.addChild(board);
 
 			for (let i = 0; i < 4; i++) {
-				app.stage.addChild(new Piece("red", i + 1).sprite);
-				app.stage.addChild(new Piece("blue", i + 1).sprite);
-				app.stage.addChild(new Piece("green", i + 1).sprite);
-				app.stage.addChild(new Piece("yellow", i + 1).sprite);
+				app.stage.addChild(new Piece("red", i).sprite);
+				app.stage.addChild(new Piece("blue", i).sprite);
+				app.stage.addChild(new Piece("green", i).sprite);
+				app.stage.addChild(new Piece("yellow", i).sprite);
 			}
+
+			// for (let [x, y] of actuallyPositions) {
+			// 	app.stage.addChild(new Dot(x, y).sprite);
+			// }
 		}
 
 
@@ -61,7 +63,7 @@ export function PixiBoard() {
 
 
 
-	return <div ref={pixiContainer} style={{ width: "1000px", height: "1000px" }} />;
+	return <div ref={pixiContainer} id={props.id} />;
 };
 
 export default PixiBoard;

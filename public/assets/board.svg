@@ -2,15 +2,42 @@
 	<rect fill="#555" x="0" y="0" width="63" height="63" stroke-width="0" />
 
 	<g>
-		<rect x="0" y="0" width="21" height="21" fill="red" />
-		<rect x="42" y="0" width="21" height="21" fill="blue" />
+		<rect x="0" y="0" width="21" height="21" fill="#e94738" />
 
-		<rect x="0" y="42" width="21" height="21" fill="green" />
-		<rect x="42" y="42" width="21" height="21" fill="yellow" />
+
+		<rect x="42" y="0" width="21" height="21" fill="#1e91fe" />
+
+		<rect x="0" y="42" width="21" height="21" fill="#23ca58" />
+		<rect x="42" y="42" width="21" height="21" fill="#fac51d" />
+
+		<g fill="#000000" fill-opacity="0.3" stroke-width="0">
+			<rect x="2" y="2" width="17" height="17" ry="3" />
+			<circle cx="7" cy="7" r="2" />
+			<circle cx="7" cy="14" r="2" />
+			<circle cx="14" cy="7" r="2" />
+			<circle cx="14" cy="14" r="2" />
+
+			<rect x="2" y="44" width="17" height="17" ry="3" />
+			<circle cx="49" cy="7" r="2" />
+			<circle cx="49" cy="14" r="2" />
+			<circle cx="56" cy="7" r="2" />
+			<circle cx="56" cy="14" r="2" />
+
+			<rect x="44" y="2" width="17" height="17" ry="3" />
+			<circle cx="7" cy="49" r="2" />
+			<circle cx="14" cy="49" r="2" />
+			<circle cx="7" cy="56" r="2" />
+			<circle cx="14" cy="56" r="2" />
+
+			<rect x="44" y="44" width="17" height="17" ry="3" />
+			<circle cx="49" cy="49" r="2" />
+			<circle cx="49" cy="56" r="2" />
+			<circle cx="56" cy="49" r="2" />
+			<circle cx="56" cy="56" r="2" />
+		</g>
 	</g>
 
-	<g fill="rgba(255,0,0,0.2)">
-		<rect width="7" height="3" x="28" y="00" />
+	<g fill="#e94738">
 		<rect width="7" height="3" x="28" y="03" />
 		<rect width="7" height="3" x="28" y="06" />
 		<rect width="7" height="3" x="28" y="09" />
@@ -21,8 +48,7 @@
 
 		<polygon points="24,24 31.5,31.5 39,24" />
 	</g>
-	<g fill="rgba(0,0,255,0.2)">
-		<rect width="3" height="7" x="00" y="28" />
+	<g fill="#23ca58">
 		<rect width="3" height="7" x="03" y="28" />
 		<rect width="3" height="7" x="06" y="28" />
 		<rect width="3" height="7" x="09" y="28" />
@@ -33,7 +59,7 @@
 
 		<polygon points="24,24 31.5,31.5 24,39" />
 	</g>
-	<g fill="rgba(0,128,0,0.2)">
+	<g fill="#fac51d">
 		<rect width="7" height="3" x="28" y="39" />
 		<rect width="7" height="3" x="28" y="42" />
 		<rect width="7" height="3" x="28" y="45" />
@@ -41,11 +67,10 @@
 		<rect width="7" height="3" x="28" y="51" />
 		<rect width="7" height="3" x="28" y="54" />
 		<rect width="7" height="3" x="28" y="57" />
-		<rect width="7" height="3" x="28" y="60" />
 
 		<polygon points="39,39 31.5,31.5 24,39" />
 	</g>
-	<g fill="rgba(255,255,0,0.2)">
+	<g fill="#1e91fe">
 		<rect width="3" height="7" x="39" y="28" />
 		<rect width="3" height="7" x="42" y="28" />
 		<rect width="3" height="7" x="45" y="28" />
@@ -53,54 +78,56 @@
 		<rect width="3" height="7" x="51" y="28" />
 		<rect width="3" height="7" x="54" y="28" />
 		<rect width="3" height="7" x="57" y="28" />
-		<rect width="3" height="7" x="60" y="28" />
 
 		<polygon points="39,24 31.5,31.5 39,39" />
 	</g>
 
-	<g fill="rgba(255,255,255,0.2)">
+	<g fill="white">
 		<g>
 			<g>
 				<polygon points="35,39 39,39 42,42 35,42 " />
 				<rect width="7" height="3" x="35" y="42" />
 				<rect width="7" height="3" x="35" y="45" />
-				<rect width="7" height="3" x="35" y="48" />
+				<rect width="7" height="3" x="35" y="48" fill="#fac51d" />
 				<rect width="7" height="3" x="35" y="51" />
 				<rect width="7" height="3" x="35" y="54" />
 				<rect width="7" height="3" x="35" y="57" />
 				<rect width="7" height="3" x="35" y="60" />
+				<rect width="7" height="3" x="28" y="60" fill="#999999" />
 			</g>
 			<g>
 				<polygon points="39,35 39,39 42,42 42,35" />
 				<rect width="3" height="7" x="42" y="35" />
 				<rect width="3" height="7" x="45" y="35" />
-				<rect width="3" height="7" x="48" y="35" />
+				<rect width="3" height="7" x="48" y="35" fill="#999999" />
 				<rect width="3" height="7" x="51" y="35" />
 				<rect width="3" height="7" x="54" y="35" />
 				<rect width="3" height="7" x="57" y="35" />
 				<rect width="3" height="7" x="60" y="35" />
+				<rect width="3" height="7" x="60" y="28" fill="#999999" />
 			</g>
 		</g>
 		<g>
 			<g>
+				<rect width="3" height="7" x="00" y="28" fill="#999999" />
+				<rect width="3" height="7" x="00" y="35" />
+				<rect width="3" height="7" x="03" y="35" />
+				<rect width="3" height="7" x="06" y="35" />
+				<rect width="3" height="7" x="09" y="35" />
+				<rect width="3" height="7" x="12" y="35" fill="#23ca58" />
+				<rect width="3" height="7" x="15" y="35" />
+				<rect width="3" height="7" x="18" y="35" />
+				<polygon points="21,35 24,35 24,39 21,42" />
+			</g>
+			<g>
 				<rect width="7" height="3" x="21" y="42" />
 				<rect width="7" height="3" x="21" y="45" />
-				<rect width="7" height="3" x="21" y="48" />
+				<rect width="7" height="3" x="21" y="48" fill="#999999" />
 				<rect width="7" height="3" x="21" y="51" />
 				<rect width="7" height="3" x="21" y="54" />
 				<rect width="7" height="3" x="21" y="57" />
 				<rect width="7" height="3" x="21" y="60" />
 				<polygon points="28,42 28,39 24,39 21,42" />
-			</g>
-			<g>
-				<rect width="3" height="7" x="00" y="35" />
-				<rect width="3" height="7" x="03" y="35" />
-				<rect width="3" height="7" x="06" y="35" />
-				<rect width="3" height="7" x="09" y="35" />
-				<rect width="3" height="7" x="12" y="35" />
-				<rect width="3" height="7" x="15" y="35" />
-				<rect width="3" height="7" x="18" y="35" />
-				<polygon points="21,35 24,35 24,39 21,42" />
 			</g>
 		</g>
 		<g>
@@ -109,7 +136,7 @@
 				<rect width="7" height="3" x="35" y="03" />
 				<rect width="7" height="3" x="35" y="06" />
 				<rect width="7" height="3" x="35" y="09" />
-				<rect width="7" height="3" x="35" y="12" />
+				<rect width="7" height="3" x="35" y="12" fill="#999999" />
 				<rect width="7" height="3" x="35" y="15" />
 				<rect width="7" height="3" x="35" y="18" />
 				<polygon points="39,24 39,28 42,28 42,21" />
@@ -117,7 +144,7 @@
 			<g>
 				<rect width="3" height="7" x="42" y="21" />
 				<rect width="3" height="7" x="45" y="21" />
-				<rect width="3" height="7" x="48" y="21" />
+				<rect width="3" height="7" x="48" y="21" fill="#1e91fe" />
 				<rect width="3" height="7" x="51" y="21" />
 				<rect width="3" height="7" x="54" y="21" />
 				<rect width="3" height="7" x="57" y="21" />
@@ -127,11 +154,12 @@
 		</g>
 		<g>
 			<g>
+				<rect width="7" height="3" x="28" y="00" fill="#999999" />
 				<rect width="7" height="3" x="21" y="00" />
 				<rect width="7" height="3" x="21" y="03" />
 				<rect width="7" height="3" x="21" y="06" />
 				<rect width="7" height="3" x="21" y="09" />
-				<rect width="7" height="3" x="21" y="12" />
+				<rect width="7" height="3" x="21" y="12" fill="#e94738" />
 				<rect width="7" height="3" x="21" y="15" />
 				<rect width="7" height="3" x="21" y="18" />
 				<polygon points="21,21 28,21 28,24 24,24 " />
@@ -141,7 +169,7 @@
 				<rect width="3" height="7" x="03" y="21" />
 				<rect width="3" height="7" x="06" y="21" />
 				<rect width="3" height="7" x="09" y="21" />
-				<rect width="3" height="7" x="12" y="21" />
+				<rect width="3" height="7" x="12" y="21" fill="#999999" />
 				<rect width="3" height="7" x="15" y="21" />
 				<rect width="3" height="7" x="18" y="21" />
 				<polygon points="21,21 21,28 24,28 24,24 " />
@@ -149,7 +177,7 @@
 		</g>
 	</g>
 
-	<g stroke="none" fill="black" font-size="2" text-anchor="end">
+	<g stroke="none" fill="black" font-size="2" text-anchor="end" font-family="'Arial', 'Comic Sans MS'">
 		<g>
 			<g>
 				<text x="36.25" y="62.75">1</text>
@@ -251,4 +279,14 @@
 			</g>
 		</g>
 	</g>
+
+	<!-- Grid lines -->
+	<defs>
+		<pattern id="grid" width="1" height="1" patternUnits="userSpaceOnUse">
+			<rect width="1" height="1" fill="none" stroke="black" stroke-width="0.05" />
+		</pattern>
+	</defs>
+
+	<!-- Apply the pattern -->
+	<!-- <rect width="63" height="63" fill="url(#grid)" /> -->
 </svg>

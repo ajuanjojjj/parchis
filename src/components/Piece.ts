@@ -14,10 +14,17 @@ export class Piece {
 	private clickedAt = 0;
 	private position = 0;
 
+	private get internalX() {
+		return this.sprite.x / (1000 / 63); // Convert back to the original value
+	}
+	private get internalY() {
+		return this.sprite.y / (1000 / 63); // Convert back to the original value
+	}
+
 	constructor(color: "red" | "blue" | "green" | "yellow", position: number) {
 		const sprite = new Sprite();
-		sprite.x = positions[position - 1].x;
-		sprite.y = positions[position - 1].y;
+		sprite.x = convert(HOME_POSITIONS[color][position][0]);
+		sprite.y = convert(HOME_POSITIONS[color][position][1]);
 		sprite.width = 50;
 		sprite.height = 50;
 		sprite.anchor.set(0.5);
@@ -29,7 +36,7 @@ export class Piece {
 		sprite
 			.on("pointerdown", () => this.onPointerDown())
 			.on("pointerup", () => this.onPointerUp())
-			.on("pointermove", (event) => this.onDragMove(event))
+			.on("globalmousemove", (event) => this.onDragMove(event))
 			;
 
 		this.sprite = sprite;
@@ -58,11 +65,26 @@ export class Piece {
 
 		// If the piece was clicked for more than 100ms, we consider it a drag
 		if (this.clickedAt + 100 < performance.now()) {
-			//Ya hemos drageado xd
+			const x = this.internalX;
+			const y = this.internalY;
+			const actualNearest = actuallyPositions
+				.sort((a, b) => {
+					const aDist = Math.abs(a[0] - x) + Math.abs(a[1] - y);
+					const bDist = Math.abs(b[0] - x) + Math.abs(b[1] - y);
+					return aDist - bDist;
+				})[0]; // Get the nearest position
+			const distance = Math.abs(actualNearest[0] - x) + Math.abs(actualNearest[1] - y);
+			if (distance > 5) {
+				alert("You are not close enough to a position");
+			} else {
+				this.sprite.x = convert(actualNearest[0] + 0.5);
+				this.sprite.y = convert(actualNearest[1] + 0.5);
+			}
+
 		} else {
 			const newPos = window.prompt("Insert the new new position, current one is " + this.position);
 			if (newPos) {
-				this.animateMove(Number(newPos) - 1);
+				this.animateMove(Number(newPos));
 			}
 		}
 	}
@@ -74,50 +96,54 @@ export class Piece {
 		this.sprite.y = newPosition.y;
 	}
 	async animateMove(newPos: number) {
-		let i = 0;
+		newPos = Math.max(1, Math.min(newPos, actuallyPositions.length)) - 1; // Clamp the value between 0 and positions.length - 1 
+		let i = this.position;
 		const timeline = gsap.timeline({ paused: true });
-		while (i++ != newPos) {
-			const pos = positions[i % positions.length];
-			// await this.moveAsync({
-			// 	newX: pos.x,
-			// 	newY: pos.y,
-			// 	duration: 0.2,
-			// 	ease: i == 1 ? "none" : i == newPos ? "none" : "none"
-			// });
+
+		while (i != newPos) {
+			i++;
+			i = i % actuallyPositions.length;
+			const pos = actuallyPositions[i];
 			timeline.to(this.sprite, {
-				x: pos.x,
-				y: pos.y,
+				x: convert(pos[0] + .5),
+				y: convert(pos[1] + .5),
 				duration: 0.3,
 				// ease: i == 1 ? "power2.in" : i == newPos ? "power2.out" : "none",
 			});
 		}
 		timeline.play();
 
-	}
-
-	moveAsync(params: { newX: number, newY: number, duration: number, ease: "in" | "out" | "none"; }): Promise<void> {
-		const { newX, newY, duration = 1, ease = "out" } = params;
-		return new Promise<void>((resolve) => {
-			gsap.to(this.sprite, {
-				x: newX,
-				y: newY,
-				duration: duration, // 1 second transition time
-				ease: ease != "none" ? "power2." + ease : ease,
-				onComplete: () => {
-					resolve(); // Resolve the promise when the animation is complete
-				}
-			});
-		});
+		this.position = newPos;
 	}
 }
 
-//Esto no esta del todo bien. Falla cuando cambias de vertical a horizontal 
-const getCoord = (pos: number) => ((960 / 21) * pos) + 20; // 20 is the padding
-const positions = actuallyPositions.map((pos) => {
-	return {
-		x: getCoord(pos[0]),
-		y: getCoord(pos[1]),
-	};
-});
 
-console.log(actuallyPositions);
+
+const HOME_POSITIONS = {
+	red: [
+		[7, 7],
+		[7, 14],
+		[14, 7],
+		[14, 14],
+	],
+	yellow: [
+		[49, 49],
+		[49, 56],
+		[56, 49],
+		[56, 56],
+	],
+	green: [
+		[7, 49],
+		[14, 49],
+		[7, 56],
+		[14, 56],
+	],
+	blue: [
+		[49, 7],
+		[49, 14],
+		[56, 7],
+		[56, 14],
+	]
+};
+const convert = (val: number) => (1000 / 63) * val;
+

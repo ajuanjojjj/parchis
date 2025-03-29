@@ -1,0 +1,79 @@
+.game {
+	height: 100vh;
+	width: 100vw;
+	overflow: hidden;
+
+	display: grid;
+
+	grid-template-columns: auto 1fr auto;
+	grid-template-rows: auto 1fr auto;
+	grid-template-areas:
+		"P4 . P2"
+		"Game Game Game"
+		"P1 . P3";
+
+	/* If landscape */
+	@media only screen and (orientation: landscape) {
+		grid-template-areas:
+			"P4 Game P2"
+			". Game ."
+			"P1 Game P3";
+	}
+
+}
+
+#P1 {
+	grid-area: P1;
+}
+
+#P2 {
+	grid-area: P2;
+}
+
+#P3 {
+	grid-area: P3;
+}
+
+#P4 {
+	grid-area: P4;
+}
+
+@media only screen and (orientation: landscape) {
+
+	#P1,
+	#P2,
+	#P3,
+	#P4 {
+		img.portrait {
+			display: none;
+		}
+	}
+}
+
+@media only screen and (orientation: portrait) {
+
+	#P1,
+	#P2,
+	#P3,
+	#P4 {
+		img.landscape {
+			display: none;
+		}
+	}
+}
+
+
+#Board {
+	grid-area: Game;
+	overflow: hidden;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+
+	>canvas {
+		height: auto;
+		width: auto;
+		max-height: 100%;
+		max-width: 100%;
+	}
+}
