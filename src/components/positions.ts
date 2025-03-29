@@ -1,4 +1,4 @@
-export const actuallyPositions = [
+export const Board_Positions = [
 	[38, 61],
 	[38, 58],
 	[38, 55],
@@ -67,34 +67,106 @@ export const actuallyPositions = [
 	[24, 58],
 	[24, 61],
 	[31, 61],
-].map(([x, y]) => {
-	// if (x == 24 && y < 30) {
-	// 	return [x, y + 1];
-	// }
-	// if (x == 24 && y > 30) {
-	// 	return [x, y - 2];
-	// }
-	// if (x == 39 && y < 30) {
-	// 	return [x - 1, y + 1];
-	// }
-	// if (x == 39 && y > 30) {
-	// 	return [x - 1, y - 2];
-	// }
-	// if (y == 24 && x < 30) {
-	// 	return [x + 1, y];
-	// }
-	// if (y == 24 && x > 30) {
-	// 	return [x - 2, y];
-	// }
-	// if (y == 39 && x < 30) {
-	// 	return [x + 1, y - 1];
-	// }
-	// if (y == 39 && x > 30) {
-	// 	return [x - 2, y - 1];
-	// }
+];
 
-	return [x, y];
-}); // Convert to pixels
+export const Home_Positions = {
+	red: [
+		[6.5, 6.5],
+		[6.5, 13.5],
+		[13.5, 6.5],
+		[13.5, 13.5],
+	],
+	yellow: [
+		[48.5, 48.5],
+		[48.5, 55.5],
+		[55.5, 48.5],
+		[55.5, 55.5],
+	],
+	green: [
+		[6.5, 48.5],
+		[13.5, 48.5],
+		[6.5, 55.5],
+		[13.5, 55.5],
+	],
+	blue: [
+		[48.5, 6.5],
+		[48.5, 13.5],
+		[55.5, 6.5],
+		[55.5, 13.5],
+	]
+};
 
+export const Final_Positions = {
+	red: [
+		[31, 22],
+		[31, 19],
+		[31, 16],
+		[31, 13],
+		[31, 10],
+		[31, 7],
+		[31, 4],
 
-console.log(actuallyPositions);
+		[31, 25.25],
+		[28, 25.25],
+		[34, 25.25],
+		[31, 28.5],
+	],
+
+	yellow: [
+		[31, 58],
+		[31, 55],
+		[31, 52],
+		[31, 49],
+		[31, 46],
+		[31, 43],
+		[31, 40],
+
+		[31, 36.75],
+		[28, 36.75],
+		[34, 36.75],
+		[31, 33.5],
+	],
+	blue: [
+		[40, 31],
+		[43, 31],
+		[46, 31],
+		[49, 31],
+		[52, 31],
+		[55, 31],
+		[58, 31],
+
+		[36.75, 31],
+		[36.75, 27.75],
+		[36.75, 34.25],
+		[33.5, 31],
+	],
+	green: [
+		[22, 31],
+		[19, 31],
+		[16, 31],
+		[13, 31],
+		[10, 31],
+		[7, 31],
+		[4, 31],
+
+		[25.25, 31],
+		[25.25, 27.75],
+		[25.25, 34.25],
+		[28.5, 31],
+	],
+
+};
+
+export const All_Positions = [
+	...Board_Positions,
+
+	...Final_Positions.red,
+	...Final_Positions.blue,
+	...Final_Positions.green,
+	...Final_Positions.yellow,
+
+	...Home_Positions.red,
+	...Home_Positions.blue,
+	...Home_Positions.green,
+	...Home_Positions.yellow
+];

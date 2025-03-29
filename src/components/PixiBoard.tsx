@@ -50,7 +50,7 @@ export function PixiBoard(props: { id: string; }) {
 				app.stage.addChild(new Piece("yellow", i).sprite);
 			}
 
-			// for (let [x, y] of actuallyPositions) {
+			// for (const [x, y] of [...tubos.green,]) {
 			// 	app.stage.addChild(new Dot(x, y).sprite);
 			// }
 		}

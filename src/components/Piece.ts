@@ -1,6 +1,6 @@
 import { Assets, Sprite, type FederatedPointerEvent, type Texture } from "pixi.js";
 import { gsap } from "gsap"; // To animate the movement
-import { actuallyPositions } from "./positions";
+import { All_Positions, Board_Positions, Home_Positions } from "./positions";
 
 // Positions 1-1000 are places on the board
 // Positions 1001-1100 are the "Home" positions for player 1
@@ -23,8 +23,8 @@ export class Piece {
 
 	constructor(color: "red" | "blue" | "green" | "yellow", position: number) {
 		const sprite = new Sprite();
-		sprite.x = convert(HOME_POSITIONS[color][position][0]);
-		sprite.y = convert(HOME_POSITIONS[color][position][1]);
+		sprite.x = convert(Home_Positions[color][position][0]);
+		sprite.y = convert(Home_Positions[color][position][1]);
 		sprite.width = 50;
 		sprite.height = 50;
 		sprite.anchor.set(0.5);
@@ -67,7 +67,7 @@ export class Piece {
 		if (this.clickedAt + 100 < performance.now()) {
 			const x = this.internalX;
 			const y = this.internalY;
-			const actualNearest = actuallyPositions
+			const actualNearest = All_Positions
 				.sort((a, b) => {
 					const aDist = Math.abs(a[0] - x) + Math.abs(a[1] - y);
 					const bDist = Math.abs(b[0] - x) + Math.abs(b[1] - y);
@@ -77,8 +77,8 @@ export class Piece {
 			if (distance > 5) {
 				alert("You are not close enough to a position");
 			} else {
-				this.sprite.x = convert(actualNearest[0] + 0.5);
-				this.sprite.y = convert(actualNearest[1] + 0.5);
+				this.sprite.x = convert(actualNearest[0]);
+				this.sprite.y = convert(actualNearest[1]);
 			}
 
 		} else {
@@ -96,14 +96,14 @@ export class Piece {
 		this.sprite.y = newPosition.y;
 	}
 	async animateMove(newPos: number) {
-		newPos = Math.max(1, Math.min(newPos, actuallyPositions.length)) - 1; // Clamp the value between 0 and positions.length - 1 
+		newPos = Math.max(1, Math.min(newPos, Board_Positions.length)) - 1; // Clamp the value between 0 and positions.length - 1 
 		let i = this.position;
 		const timeline = gsap.timeline({ paused: true });
 
 		while (i != newPos) {
 			i++;
-			i = i % actuallyPositions.length;
-			const pos = actuallyPositions[i];
+			i = i % Board_Positions.length;
+			const pos = Board_Positions[i];
 			timeline.to(this.sprite, {
 				x: convert(pos[0] + .5),
 				y: convert(pos[1] + .5),
@@ -119,31 +119,5 @@ export class Piece {
 
 
 
-const HOME_POSITIONS = {
-	red: [
-		[7, 7],
-		[7, 14],
-		[14, 7],
-		[14, 14],
-	],
-	yellow: [
-		[49, 49],
-		[49, 56],
-		[56, 49],
-		[56, 56],
-	],
-	green: [
-		[7, 49],
-		[14, 49],
-		[7, 56],
-		[14, 56],
-	],
-	blue: [
-		[49, 7],
-		[49, 14],
-		[56, 7],
-		[56, 14],
-	]
-};
-const convert = (val: number) => (1000 / 63) * val;
+const convert = (val: number) => (1000 / 63) * (val + 0.5);
 
