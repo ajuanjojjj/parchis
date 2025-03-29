@@ -11,7 +11,7 @@ import { All_Positions, Board_Positions, Home_Positions } from "./positions";
 export class Piece {
 	public sprite: Sprite;
 	private dragging: boolean = false;
-	private clickedAt = 0;
+	private clickedAt = [0, 0, 0];
 	private position = 0;
 
 	private get internalX() {
@@ -55,7 +55,7 @@ export class Piece {
 		this.sprite.zIndex = 10;
 
 		// Is there an alternative to performance for animations and such
-		this.clickedAt = performance.now();
+		this.clickedAt = [performance.now(), this.sprite.x, this.sprite.y]; // Store the time and position of the click
 	}
 
 	onPointerUp() {
@@ -64,7 +64,14 @@ export class Piece {
 		this.sprite.zIndex = 0; // Reset zIndex to default
 
 		// If the piece was clicked for more than 100ms, we consider it a drag
-		if (this.clickedAt + 100 < performance.now()) {
+		const time_low = (this.clickedAt[0] + 100) > performance.now();
+		const distance = Math.abs(this.clickedAt[1] - this.sprite.x) + Math.abs(this.clickedAt[2] - this.sprite.y);
+		if (time_low && (distance < 20)) {
+			const newPos = window.prompt("Insert the new new position, current one is " + this.position);
+			if (newPos) {
+				this.animateMove(Number(newPos));
+			}
+		} else {
 			const x = this.internalX;
 			const y = this.internalY;
 			const actualNearest = All_Positions
@@ -79,12 +86,6 @@ export class Piece {
 			} else {
 				this.sprite.x = convert(actualNearest[0]);
 				this.sprite.y = convert(actualNearest[1]);
-			}
-
-		} else {
-			const newPos = window.prompt("Insert the new new position, current one is " + this.position);
-			if (newPos) {
-				this.animateMove(Number(newPos));
 			}
 		}
 	}
