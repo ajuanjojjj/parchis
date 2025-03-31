@@ -1,4 +1,5 @@
 import PixiBoard from '../../components/PixiBoard';
+import { Player } from '../../components/Player/Player';
 import styles from './Game.module.css';
 
 function App() {
@@ -15,15 +16,6 @@ function App() {
 
 
 
-//
-function Player(props: { id: string; }) {
-	return (
-		<div id={props.id}>
-			<img src="/assets/Player_H.PNG" className={styles.portrait} alt="" />
-			<img src="/assets/Player_V.PNG" className={styles.landscape} alt="" />
-		</div>
-	);
-}
 
 
 export default App;

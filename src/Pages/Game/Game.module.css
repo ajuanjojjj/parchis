@@ -38,29 +38,6 @@
 	grid-area: P4;
 }
 
-@media only screen and (orientation: landscape) {
-
-	#P1,
-	#P2,
-	#P3,
-	#P4 {
-		img.portrait {
-			display: none;
-		}
-	}
-}
-
-@media only screen and (orientation: portrait) {
-
-	#P1,
-	#P2,
-	#P3,
-	#P4 {
-		img.landscape {
-			display: none;
-		}
-	}
-}
 
 
 #Board {
