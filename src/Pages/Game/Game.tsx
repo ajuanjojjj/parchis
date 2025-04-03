@@ -1,8 +1,9 @@
 import PixiBoard from '../../components/Board/PixiBoard';
 import { Player } from '../../components/Player/Player';
+import { RTC } from '../RTC/RTC';
 import styles from './Game.module.css';
 
-function App() {
+function AppGame() {
 	return (
 		<div className={styles.game}>
 			<Player id={styles.P1} player={1} />
@@ -16,6 +17,9 @@ function App() {
 
 
 
+function App() {
+	return <RTC />;
+}
 
 
 export default App;
