@@ -9,3 +9,60 @@
 		display: none;
 	}
 }
+
+
+
+.player {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: space-around;
+	border-color: inherit;
+	gap: 10px;
+
+	&.inverted {
+		flex-direction: column-reverse;
+
+		.dicesContainer::after {
+			bottom: 0;
+			transform: translateX(-50%) translateY(100%);
+			border-top: 3mm solid color-mix(in srgb, var(--color) 60%, transparent);
+		}
+	}
+
+	.playerName {
+		background: #00000080;
+		padding: 5%;
+		border-radius: 5px;
+		color: white;
+	}
+
+	.avatar {
+		width: 2cm;
+		border-radius: 100%;
+		border: 1mm solid;
+		border-color: var(--color);
+	}
+
+	.dicesContainer {
+		display: flex;
+		flex-direction: column;
+		gap: 5mm;
+		padding: 5mm;
+		border-radius: 5mm;
+		background: color-mix(in srgb, var(--color) 60%, transparent);
+		position: relative;
+
+		/* Caret on top */
+		&::after {
+			content: "";
+			position: absolute;
+			top: -0mm;
+			left: 50%;
+			transform: translateX(-50%) translateY(-100%);
+			border: 10px solid transparent;
+			border-bottom: 10px solid color-mix(in srgb, var(--color) 60%, transparent);
+		}
+
+	}
+}

@@ -1,0 +1,75 @@
+:root {
+	--dice-size: 15mm;
+}
+
+
+.container {
+	width: var(--dice-size);
+	height: var(--dice-size);
+}
+
+
+.cube {
+	width: 100%;
+	height: 100%;
+
+	transform-style: preserve-3d;
+	cursor: pointer;
+
+
+	.front {
+		transform: translateZ(calc(var(--dice-size) / 2));
+	}
+
+	.back {
+		transform: rotateX(-180deg) translateZ(calc(var(--dice-size) / 2));
+	}
+
+	.right {
+		transform: rotateY(90deg) translateZ(calc(var(--dice-size) / 2));
+	}
+
+	.left {
+		transform: rotateY(-90deg) translateZ(calc(var(--dice-size) / 2));
+	}
+
+	.top {
+		transform: rotateX(90deg) translateZ(calc(var(--dice-size) / 2));
+	}
+
+	.bottom {
+		transform: rotateX(-90deg) translateZ(calc(var(--dice-size) / 2));
+	}
+}
+
+@keyframes roll {
+	from {
+		transform: rotateX(0deg) rotateY(0deg);
+	}
+
+	to {
+		transform: rotateX(360deg) rotateY(360deg);
+	}
+}
+
+.side {
+	position: absolute;
+
+	display: grid;
+	grid-template-columns: 1fr 1fr 1fr;
+	grid-template-rows: 1fr 1fr 1fr;
+
+	background: var(--dice-color);
+	border: 2px solid var(--dice-border-color);
+	border: 2px solid black;
+	width: 75%;
+	height: 75%;
+
+	gap: 15%;
+	padding: 12.5%;
+
+	.dot {
+		background: var(--dice-dot-color);
+		border-radius: 100%;
+	}
+}
