@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 import { Application, Assets, Sprite, type Texture } from "pixi.js";
-import { Piece } from "./Piece";
+import { Piece } from "../Piece";
 
 export function PixiBoard(props: { id: string; }) {
 	const pixiContainer = useRef<HTMLDivElement>(null);
