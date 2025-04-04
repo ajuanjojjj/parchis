@@ -1,6 +1,7 @@
 import { Assets, Sprite, type FederatedPointerEvent, type Texture } from "pixi.js";
 import { gsap } from "gsap"; // To animate the movement
 import { All_Positions, Board_Positions, Home_Positions } from "./positions";
+import { Howl } from "howler"; // For sound effects
 
 // Positions 1-1000 are places on the board
 // Positions 1001-1100 are the "Home" positions for player 1
@@ -8,11 +9,13 @@ import { All_Positions, Board_Positions, Home_Positions } from "./positions";
 // Position 1501 is the "End" position for player 1
 // Positions 2001-2100 are the "Home" positions for player 2, etc
 
+const PIECE_SPRITES_COUNT = 11;
 export class Piece {
 	public sprite: Sprite;
 	private dragging: boolean = false;
 	private clickedAt = [0, 0, 0];
 	private position = 0;
+	private sound: Howl;
 
 	private get internalX() {
 		return this.sprite.x / (1000 / 63); // Convert back to the original value
@@ -42,6 +45,13 @@ export class Piece {
 		this.sprite = sprite;
 		this.position = position;
 
+		const sprites = new Array(PIECE_SPRITES_COUNT).fill("0").map<[number, number]>((_, i) => [i * 1000, 1000]);
+		const spriteMap = Object.fromEntries(sprites.map((sprite, i) => [`sprite${i}`, sprite]));
+		this.sound = new Howl({
+			src: ['sounds/piece.ogg', 'sounds/piece.mp3'],
+			sprite: spriteMap,
+		});
+
 	}
 
 	setTexture(texture: Texture): Piece {
@@ -56,6 +66,8 @@ export class Piece {
 
 		// Is there an alternative to performance for animations and such
 		this.clickedAt = [performance.now(), this.sprite.x, this.sprite.y]; // Store the time and position of the click
+
+		playSound(this.sound);
 	}
 
 	onPointerUp() {
@@ -80,6 +92,9 @@ export class Piece {
 					const bDist = Math.abs(b[0] - x) + Math.abs(b[1] - y);
 					return aDist - bDist;
 				})[0]; // Get the nearest position
+
+			playSound(this.sound);
+
 			const distance = Math.abs(actualNearest[0] - x) + Math.abs(actualNearest[1] - y);
 			if (distance > 5) {
 				alert("You are not close enough to a position");
@@ -118,7 +133,11 @@ export class Piece {
 	}
 }
 
+function playSound(soundSprite: Howl) {
+	const soundId = Math.floor(Math.random() * PIECE_SPRITES_COUNT);
+	soundSprite.stop(); // Stop all sounds before playing the new one
+	soundSprite.play(`sprite${soundId}`);
+}
 
 
 const convert = (val: number) => (1000 / 63) * (val + 0.5);
-
