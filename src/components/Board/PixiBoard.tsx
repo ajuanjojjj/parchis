@@ -30,10 +30,11 @@ export function PixiBoard(props: { id: string; }) {
 				"/assets/piece_yellow.svg",
 			]);
 
-			setup(boardTexture);
+			setupBoard(boardTexture);
+			setupPieces();
 		}
 
-		function setup(boardTexture: Texture) {
+		function setupBoard(boardTexture: Texture) {	//
 			const board = new Sprite(boardTexture);
 			board.width = app.canvas.width;
 			board.height = app.canvas.height;
@@ -42,7 +43,8 @@ export function PixiBoard(props: { id: string; }) {
 				console.log(`Board clicked at ${e.clientX}, ${e.clientY}`);
 			});
 			app.stage.addChild(board);
-
+		}
+		function setupPieces() {
 			for (let i = 0; i < 4; i++) {
 				app.stage.addChild(new Piece("red", i).sprite);
 				app.stage.addChild(new Piece("blue", i).sprite);
