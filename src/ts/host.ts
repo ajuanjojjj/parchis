@@ -66,8 +66,6 @@ export class RTC_Host {
 				if (event.candidate === null) {
 					console.log("all ICE gathering on all transports is complete.");
 					resolve(candidates);
-				} else if ((event.candidate as unknown) == "") {
-					console.log(" no further candidates to come in this generation.");
 				} else if (event.candidate) {
 					console.log("ICE Candidate Found:", event.candidate);
 					candidates.push(event.candidate);
