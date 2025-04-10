@@ -1,33 +1,36 @@
-import { Assets, Sprite, type FederatedPointerEvent, type Texture } from "pixi.js";
+import { Assets, Sprite, type FederatedPointerEvent } from "pixi.js";
 import { gsap } from "gsap"; // To animate the movement
-import { All_Positions, Board_Positions, Home_Positions } from "./positions";
+import type { BoardInterface } from "./Board/BoardInterface";
 import { Howl } from "howler"; // For sound effects
+import type { Parchis } from "../ts/Parchis";
 
-// Positions 1-1000 are places on the board
-// Positions 1001-1100 are the "Home" positions for player 1
-// Positions 1101-1500 are the "End Column" positions for player 1
-// Position 1501 is the "End" position for player 1
-// Positions 2001-2100 are the "Home" positions for player 2, etc
 
-const PIECE_SPRITES_COUNT = 11;
 export class Piece {
-	public sprite: Sprite;
+	private sprite: Sprite;
 	private dragging: boolean = false;
-	private clickedAt = [0, 0, 0];
-	private position = 0;
+	private clickedAt: ClickStadistics = [0, 0, 0];
 	private sound: Howl;
+	private _position = 0;
 
-	private get internalX() {
-		return this.sprite.x / (1000 / 63); // Convert back to the original value
+	private board: BoardInterface;
+	private game: Parchis;
+
+	public playerId: number;
+	public pieceId: number;
+
+	public get spriteRef(): Sprite {
+		return this.sprite;
 	}
-	private get internalY() {
-		return this.sprite.y / (1000 / 63); // Convert back to the original value
+	public get position(): number {
+		return this._position;
 	}
 
-	constructor(color: "red" | "blue" | "green" | "yellow", position: number) {
+	constructor(playerId: number, pieceId: number, position: number, game: Parchis, board: BoardInterface) {
+		const color = (["red", "yellow", "blue", "green"] as const)[playerId - 1]!;
 		const sprite = new Sprite();
-		sprite.x = convert(Home_Positions[color][position][0]);
-		sprite.y = convert(Home_Positions[color][position][1]);
+		const coords = board.getCoordinates(position, 1, 0);
+		sprite.x = coords.x;
+		sprite.y = coords.y;
 		sprite.width = 50;
 		sprite.height = 50;
 		sprite.anchor.set(0.5);
@@ -42,102 +45,119 @@ export class Piece {
 			.on("globalmousemove", (event) => this.onDragMove(event))
 			;
 
+		this.board = board;
 		this.sprite = sprite;
-		this.position = position;
+		this._position = position;
+		this.game = game;
+		this.playerId = playerId;
+		this.pieceId = pieceId;
 
-		const sprites = new Array(PIECE_SPRITES_COUNT).fill("0").map<[number, number]>((_, i) => [i * 1000, 1000]);
-		const spriteMap = Object.fromEntries(sprites.map((sprite, i) => [`sprite${i}`, sprite]));
-		this.sound = new Howl({
-			src: ['sounds/piece.ogg', 'sounds/piece.mp3'],
-			sprite: spriteMap,
-		});
-
+		this.sound = getSounds();
 	}
 
-	setTexture(texture: Texture): Piece {
-		this.sprite.texture = texture;
-		return this;
-	}
-
-	onPointerDown() {
+	private onPointerDown() {
 		this.dragging = true;
 		this.sprite.alpha = 0.7;
 		this.sprite.zIndex = 10;
 
-		// Is there an alternative to performance for animations and such
-		this.clickedAt = [performance.now(), this.sprite.x, this.sprite.y]; // Store the time and position of the click
+		this.clickedAt = [performance.now(), this.sprite.x, this.sprite.y];
 
 		playSound(this.sound);
 	}
-
-	onPointerUp() {
+	private onPointerUp() {
 		this.dragging = false;
 		this.sprite.alpha = 1;
 		this.sprite.zIndex = 0; // Reset zIndex to default
 
 		// If the piece was clicked for more than 100ms, we consider it a drag
-		const time_low = (this.clickedAt[0] + 100) > performance.now();
-		const distance = Math.abs(this.clickedAt[1] - this.sprite.x) + Math.abs(this.clickedAt[2] - this.sprite.y);
-		if (time_low && (distance < 20)) {
-			const newPos = window.prompt("Insert the new new position, current one is " + this.position);
-			if (newPos) {
-				this.animateMove(Number(newPos));
-			}
-		} else {
-			const x = this.internalX;
-			const y = this.internalY;
-			const actualNearest = All_Positions
-				.sort((a, b) => {
-					const aDist = Math.abs(a[0] - x) + Math.abs(a[1] - y);
-					const bDist = Math.abs(b[0] - x) + Math.abs(b[1] - y);
-					return aDist - bDist;
-				})[0]; // Get the nearest position
 
+		const clickedTo = [performance.now(), this.sprite.x, this.sprite.y] as const;
+		if (wasDrag(this.clickedAt, clickedTo)) {
 			playSound(this.sound);
 
-			const distance = Math.abs(actualNearest[0] - x) + Math.abs(actualNearest[1] - y);
-			if (distance > 5) {
+			const closest = this.board.getSquare({ x: this.sprite.x, y: this.sprite.y }, 7.5); // Get the closest square to the clicked position
+			if (closest == null) {
 				alert("You are not close enough to a position");
 			} else {
-				this.sprite.x = convert(actualNearest[0]);
-				this.sprite.y = convert(actualNearest[1]);
+				this.game.movePiece(this.playerId, this.pieceId, closest, false);
+			}
+		} else {
+			const newPos = window.prompt("Insert the new new position, current one is " + this.position);
+			if (newPos) {
+				const newPosInt = parseInt(newPos);
+				if (isNaN(newPosInt)) {
+					alert("Invalid position");
+					return;
+				}
+				this.game.movePiece(this.playerId, this.pieceId, newPosInt, true);
 			}
 		}
 	}
-
-	onDragMove(event: FederatedPointerEvent) {
+	private onDragMove(event: FederatedPointerEvent) {
 		if (!this.dragging) return;
 		const newPosition = event.global;
 		this.sprite.x = newPosition.x;
 		this.sprite.y = newPosition.y;
 	}
-	async animateMove(newPos: number) {
-		newPos = Math.max(1, Math.min(newPos, Board_Positions.length)) - 1; // Clamp the value between 0 and positions.length - 1 
-		let i = this.position;
+
+	public animateMoves(moves: Array<{ position: number, memberCount: number; nthMember: number; }>) {
 		const timeline = gsap.timeline({ paused: true });
 
-		while (i != newPos) {
-			i++;
-			i = i % Board_Positions.length;
-			const pos = Board_Positions[i];
+		let lastPosition = this.position;
+		for (const move of moves) {
+			const { position, memberCount, nthMember } = move;
+			const posCoordinates = this.board.getCoordinates(position, memberCount, nthMember);
 			timeline.to(this.sprite, {
-				x: convert(pos[0] + .5),
-				y: convert(pos[1] + .5),
+				x: posCoordinates.x,
+				y: posCoordinates.y,
 				duration: 0.3,
 				// ease: i == 1 ? "power2.in" : i == newPos ? "power2.out" : "none",
 			});
+			lastPosition = position;
 		}
 		timeline.play();
 
-		this.position = newPos;
+		return timeline.then(() => {
+			this._position = lastPosition;
+		});
+	}
+	public staticMove(position: number, memberCount: number, nthMember: number) {
+		const posCoordinates = this.board.getCoordinates(position, memberCount, nthMember);
+		this.sprite.x = posCoordinates.x;
+		this.sprite.y = posCoordinates.y;
+		this.sprite.zIndex = nthMember;
+
+		this._position = position;
 	}
 }
 
+const PIECE_SPRITES_COUNT = 11;
 function playSound(soundSprite: Howl) {
 	const soundId = Math.floor(Math.random() * PIECE_SPRITES_COUNT);
 	soundSprite.stop(); // Stop all sounds before playing the new one
 	soundSprite.play(`sprite${soundId}`);
 }
+function getSounds(): Howl {
+	const sprites = new Array(PIECE_SPRITES_COUNT).fill("0").map<[number, number]>((_, i) => [i * 1000, 1000]);
+	const spriteMap = Object.fromEntries(sprites.map((sprite, i) => [`sprite${i}`, sprite]));
+	return new Howl({
+		src: ['sounds/piece.ogg', 'sounds/piece.mp3'],
+		sprite: spriteMap,
+	});
+}
+
+type ClickStadistics = Readonly<[number, number, number]>;
+function wasDrag(clickedAt: ClickStadistics, clickedTo: ClickStadistics) {
+	// Check if it was held for less than 100ms
+	const time_low = (clickedAt[0] + 100) > clickedTo[0];
+	if (time_low) return false;
 
 
-const convert = (val: number) => (1000 / 63) * (val + 0.5);
+	// Check if the distance is less than 20 pixels
+	const distanceX = Math.abs(clickedAt[1] - clickedTo[1]);
+	const distanceY = Math.abs(clickedAt[2] - clickedTo[2]);
+	const distance = distanceX + distanceY;
+	if (distance < 20) return false;
+
+	return true;
+}
