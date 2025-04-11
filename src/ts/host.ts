@@ -8,21 +8,29 @@ export class RTC_Host {
 		});
 	}
 
-	async init(): Promise<RTC_Host_Init> {
+	public async init(): Promise<RTC_Host_Init> {
 		const localCandidates = this.getCandidates();
+		const channel = this.getChannel("chat");
+
+		// The candidates gathering and chennel need to be setup before the offer is created. 
 		const offer = this.createOffer();
 
-		this.setupDataChannel();
-
+		this.dataChannel = channel;
 		return {
 			offer: await offer,
 			candidates: await localCandidates
 		};
 	}
 
-	async connectClient(offerInit: RTCSessionDescriptionInit, candidatesInit: RTCIceCandidateInit[]) {
+	public connectClient(offerInit: RTCSessionDescriptionInit, candidatesInit: RTCIceCandidateInit[]) {
 		this.setIceCandidates(candidatesInit);
 		this.setAnswer(offerInit);
+	}
+
+	public kill() {
+		this.peerConnection.close();
+		this.dataChannel?.close();
+		this.dataChannel = null;
 	}
 
 
@@ -50,7 +58,6 @@ export class RTC_Host {
 	//Private methods
 
 	private async createOffer() {
-		// this.dataChannel = this.peerConnection.createDataChannel("chat");
 		const offer = await this.peerConnection.createOffer();
 		await this.peerConnection.setLocalDescription(offer);
 
@@ -74,20 +81,22 @@ export class RTC_Host {
 		});
 	}
 
-	private setupDataChannel() {
-		this.dataChannel = this.peerConnection.createDataChannel("chat");
-		this.dataChannel.onopen = () => {
+	private getChannel(label: string) {
+		const channel = this.peerConnection.createDataChannel(label);
+		channel.onopen = () => {
 			this.onOpen();
 		};
-		this.dataChannel.onmessage = (event) => {
+		channel.onmessage = (event) => {
 			this.onMessage(event.data);
 		};
-		this.dataChannel.onclose = () => {
+		channel.onclose = () => {
 			this.onClose();
 		};
-		this.dataChannel.onerror = (event) => {
+		channel.onerror = (event) => {
 			console.error("Data channel error:", event);
 		};
+
+		return channel;
 	}
 
 	private async setAnswer(remoteInit: RTCSessionDescriptionInit) {

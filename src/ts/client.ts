@@ -33,6 +33,11 @@ export class RTC_Client {
 		}
 	}
 
+	public kill() {
+		this.peerConnection.close();
+		this.dataChannel?.close();
+		this.dataChannel = null;
+	}
 
 	private getCandidates() {
 		return new Promise<Array<RTCIceCandidate>>((resolve) => {
