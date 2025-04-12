@@ -5,25 +5,23 @@ import { Howl } from "howler"; // For sound effects
 import type { Parchis } from "../ts/Parchis";
 
 
-export class Piece {
+export class PixiPiece {
 	private sprite: Sprite;
 	private dragging: boolean = false;
 	private clickedAt: ClickStadistics = [0, 0, 0];
 	private sound: Howl;
-	private _position = 0;
 
-	private board: BoardInterface;
-	private game: Parchis;
+	private board: BoardInterface;	// I need to know the board to get the coordinates i should move to
+	private game: Parchis;			// I need to know the game to report the move to the game
 
-	public playerId: number;
-	public pieceId: number;
+	public readonly playerId: number;	// I need my identity to report the move to the game
+	public readonly pieceId: number;	// I need my identity to report the move to the game
+	public position: number;			// Tenicamente la posicion deberia estar en otra entidad. Tenicamente solo tendria la id compuesta y la posicion, asi que aqui se queda.
 
 	public get spriteRef(): Sprite {
 		return this.sprite;
 	}
-	public get position(): number {
-		return this._position;
-	}
+
 
 	constructor(playerId: number, pieceId: number, position: number, game: Parchis, board: BoardInterface) {
 		const color = (["red", "yellow", "blue", "green"] as const)[playerId - 1]!;
@@ -47,10 +45,11 @@ export class Piece {
 
 		this.board = board;
 		this.sprite = sprite;
-		this._position = position;
 		this.game = game;
 		this.playerId = playerId;
 		this.pieceId = pieceId;
+
+		this.position = position;
 
 		this.sound = getSounds();
 	}
@@ -82,7 +81,7 @@ export class Piece {
 				this.game.movePiece(this.playerId, this.pieceId, closest, false);
 			}
 		} else {
-			const newPos = window.prompt("Insert the new new position, current one is " + this.position);
+			const newPos = window.prompt("Insert the new new position");
 			if (newPos) {
 				const newPosInt = parseInt(newPos);
 				if (isNaN(newPosInt)) {
@@ -103,7 +102,6 @@ export class Piece {
 	public animateMoves(moves: Array<{ position: number, memberCount: number; nthMember: number; }>) {
 		const timeline = gsap.timeline({ paused: true });
 
-		let lastPosition = this.position;
 		for (const move of moves) {
 			const { position, memberCount, nthMember } = move;
 			const posCoordinates = this.board.getCoordinates(position, memberCount, nthMember);
@@ -113,21 +111,14 @@ export class Piece {
 				duration: 0.3,
 				// ease: i == 1 ? "power2.in" : i == newPos ? "power2.out" : "none",
 			});
-			lastPosition = position;
 		}
 		timeline.play();
-
-		return timeline.then(() => {
-			this._position = lastPosition;
-		});
 	}
 	public staticMove(position: number, memberCount: number, nthMember: number) {
 		const posCoordinates = this.board.getCoordinates(position, memberCount, nthMember);
 		this.sprite.x = posCoordinates.x;
 		this.sprite.y = posCoordinates.y;
 		this.sprite.zIndex = nthMember;
-
-		this._position = position;
 	}
 }
 

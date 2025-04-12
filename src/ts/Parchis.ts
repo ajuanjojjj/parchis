@@ -1,19 +1,19 @@
-import type { Piece } from "../components/Piece";
+import type { Application } from "pixi.js";
+import type { BoardInterface } from "../components/Board/BoardInterface";
+import { PixiPiece } from "../components/Piece";
 
 export class Parchis {
-	public players: Map<number, Player> = new Map();
-	public get allPlayers() {
+	private board: BoardInterface;
+	private players: Map<number, PlayerInterface> = new Map();
+	private get allPlayers() {
 		return Array.from(this.players.values());
 	}
-	public get allPieces() {
+	private get allPieces() {
 		return this.allPlayers.map(player => [...player.pieces.values()]).flat();
 	}
 
-	constructor(playerCount: number) {
-		for (let i = 1; i <= playerCount; i++) {
-			const player = new Player(i, 4);
-			this.players.set(i, player);
-		}
+	constructor(board: BoardInterface) {
+		this.board = board;
 	}
 
 	public movePiece(playerId: number, pieceId: number, newPosition: number, animate: boolean): number[] {
@@ -43,41 +43,98 @@ export class Parchis {
 
 		// Move the piece to the new position
 		piece.staticMove(newPosition, piecesCount, piecesAtPosition.length);
+		piece.position = newPosition;	// Update the position of the piece
 
 		return extraMoves;
 	}
 
-	public possibleMoves(playerId: string, pieceId: number, diceValues: number[]): boolean {
-		return true;
+	public addPlayer(player: PlayerInterface): void {
+		if (this.players.has(player.playerId)) {
+			throw new Error(`Player ${player.playerId} already exists.`);
+		}
+		this.players.set(player.playerId, player);
+	}
+	public removePlayer(playerId: number): void {
+		if (!this.players.has(playerId)) {
+			throw new Error(`Player ${playerId} does not exist.`);
+		}
+		this.players.delete(playerId);
 	}
 
-	private isValidMove(playerId: number, pieceId: number, newPosition: number): boolean {
-		return true;
+	public setApp(app: Application): void {
+		for (const player of this.players.values()) {
+			for (const piece of player.pieces.values()) {
+
+				const Piece1 = new PixiPiece(piece.pieceId, player.playerId, 1000 + (piece.pieceId + 1), this, this.board);
+				app.stage.addChild(Piece1.spriteRef);
+			}
+		}
 	}
+
+	// public possibleMoves(playerId: string, pieceId: number, diceValues: number[]): boolean {
+	// 	return true;
+	// }
+
+	// private isValidMove(playerId: number, pieceId: number, newPosition: number): boolean {
+	// 	return true;
+	// }
 }
 
 
-export class Player {
-	public pieces: Map<number, Piece> = new Map();
+
+export interface PlayerInterface {
+	type: "robot" | "remote" | "local" | "none";
+	playerId: number;
+	pieces: Map<number, PixiPiece>;
+
+	triggerDiceRoll: () => void;
+	movePiece: (pieceId: number, newPosition: number) => void;
+
+	get canDiceRoll(): boolean;
+	set canDiceRoll(value: boolean);
+}
+
+
+export class LocalPlayer {
+	public readonly type: "robot" | "remote" | "local";
+	public readonly id: number;
+	public pieces: Map<number, PixiPiece> = new Map();
+	private _canDiceRoll: boolean = false;
 
 	constructor(playerId: number, piecesCount: number) {
-		// for (let i = 1; i <= piecesCount; i++) {
-		// 	const piece = new Piece(playerId * 1000 + i);
-		// 	this.pieces.set(i, piece);
-		// }
+		this.id = playerId;
+		this.type = "local";
+	}
+
+
+	triggerDiceRoll(): void {
+
+	}
+	movePiece(pieceId: number, newPosition: number): void {
+
+	}
+
+	get canDiceRoll(): boolean {
+		return this._canDiceRoll;
+	}
+	set canDiceRoll(value: boolean) {
+		this._canDiceRoll = value;
 	}
 }
 
+export class AddPlayer {
+	readonly type = "none";
+	playerId: number;
+	constructor(playerId: number) {
+		this.playerId = playerId;
+	}
 
-// Positions 1-1000 are places on the board
-// Positions 1001-1100 are the "Home" positions for player 1
-// Positions 1101-1500 are the "End Column" positions for player 1
-// Position 1501 is the "End" position for player 1
-// Positions 2001-2100 are the "Home" positions for player 2, etc
-// export class Piece {
-// 	public position: number;
+	setLocal(): void {
+	}
 
-// 	constructor(position: number) {
-// 		this.position = position;
-// 	}
-// }
+	setRemote(): void {
+	}
+
+	setRobot(): void {
+	}
+}
