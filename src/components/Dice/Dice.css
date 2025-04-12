@@ -60,7 +60,7 @@
 	grid-template-rows: 1fr 1fr 1fr;
 
 	background: var(--dice-color);
-	border: 2px solid var(--dice-border-color);
+	/* border: 2px solid var(--dice-border-color); */
 	border: 2px solid black;
 	width: 75%;
 	height: 75%;

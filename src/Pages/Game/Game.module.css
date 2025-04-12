@@ -26,43 +26,6 @@
 
 }
 
-#P1 {
-	grid-area: P1;
-	--color: #e94738;
-
-	--dice-color: #e94738;
-	--dice-border-color: hsl(46, 96%, 40%);
-	--dice-dot-color: rgb(43, 43, 43);
-}
-
-#P2 {
-	grid-area: P2;
-	--color: #fac51d;
-
-	--dice-color: #fac51d;
-	--dice-border-color: hsl(46, 96%, 40%);
-	--dice-dot-color: rgb(43, 43, 43);
-}
-
-#P3 {
-	grid-area: P3;
-	--color: #1e91fe;
-
-	--dice-color: #1e91fe;
-	--dice-border-color: hsl(46, 96%, 40%);
-	--dice-dot-color: rgb(43, 43, 43);
-}
-
-#P4 {
-	grid-area: P4;
-	--color: #23ca58;
-
-	--dice-color: #23ca58;
-	--dice-border-color: hsl(46, 96%, 40%);
-	--dice-dot-color: rgb(43, 43, 43);
-}
-
-
 
 #Board {
 	grid-area: Game;

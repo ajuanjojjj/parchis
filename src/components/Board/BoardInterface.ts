@@ -39,6 +39,8 @@ export interface BoardInterface {
 	 * @description On normal 4 player parchis, this is **8**: There are 8 "moves" from square 68 to the win square.
 	 */
 	get endsTubeAfter(): number;
+
+	get backgroundURL(): string;
 }
 
 export class InvalidSquareError extends Error {

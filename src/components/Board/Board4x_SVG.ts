@@ -56,7 +56,11 @@ export class Board4x_SVG implements BoardInterface {
 	}
 
 	get endsTubeAfter(): number {
-		return 8; // Assuming no special tube logic
+		return 8; // 8 squares for the tube
+	}
+
+	get backgroundURL(): string {
+		return "/assets/board.svg";
 	}
 
 

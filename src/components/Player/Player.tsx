@@ -1,8 +1,9 @@
 import { useCallback, useState } from 'react';
 import { Dice, type DiceValue } from '../Dice/Dice';
 import styles from './Player.module.css';
+import type { PlayerInstance } from './PlayerInstance';
 
-export function Player(props: { id?: string; className?: string; player: number; }) {
+export function Player(props: { id?: string; className?: string; player: PlayerInstance; }) {
 	return (
 		<div id={props.id} className={props.className}>
 			<PlayerLandscape player={props.player} />
@@ -11,11 +12,11 @@ export function Player(props: { id?: string; className?: string; player: number;
 	);
 }
 
-function PlayerLandscape(props: { player: number; }) {
+function PlayerLandscape(props: { player: PlayerInstance; }) {
 	const [value1, setValue1] = useState<DiceValue | null>(1);
 	const [value2, setValue2] = useState<DiceValue | null>(1);
 
-	const onClick = useCallback(async () => {
+	const onClickDices = useCallback(async () => {
 		setValue1(null);
 		setValue2(null);
 		await new Promise((resolve) => setTimeout(resolve, 1000));
@@ -23,20 +24,19 @@ function PlayerLandscape(props: { player: number; }) {
 		setValue2(RollDice());
 	}, []);
 
-	const inverted = (props.player == 2 || props.player == 4) ? styles.inverted : '';
+	const inverted = (props.player.id == 2 || props.player.id == 4) ? styles.inverted : '';
 	return (
 		<div className={`${styles.landscape} ${styles.player} ${inverted}`}>
-			{/* <img src="/assets/Player_V.PNG" alt="" /> */}
-			<div className={styles.playerName}>Player {props.player}</div>
+			<div className={styles.playerName}>Player {props.player.id}</div>
 			<img src="/assets/defaultPFP.png" alt="Avatar" className={styles.avatar} />
-			<div onClick={onClick} className={styles.dicesContainer}>
+			<div onClick={onClickDices} className={styles.dicesContainer}>
 				<Dice value={value1} />
 				<Dice value={value2} />
 			</div>
 		</div>
 	);
 }
-function PlayerPortrait(props: { player: number; }) {
+function PlayerPortrait(props: { player: PlayerInstance; }) {
 	return (
 		<div className={styles.portrait}>
 			<img src="/assets/Player_H.PNG" alt="" />

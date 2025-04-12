@@ -19,6 +19,7 @@
 	justify-content: space-around;
 	border-color: inherit;
 	gap: 10px;
+	min-height: 100%;
 
 	&.inverted {
 		flex-direction: column-reverse;
