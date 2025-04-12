@@ -63,6 +63,9 @@ export class Board4x_SVG implements BoardInterface {
 		return "/assets/board.svg";
 	}
 
+	get maxPlayers() {
+		return 4;
+	}
 
 	private distance(a: ISquare, x: number, y: number) {
 		const centered = this.centerOf(a);

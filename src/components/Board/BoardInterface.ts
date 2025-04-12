@@ -41,6 +41,11 @@ export interface BoardInterface {
 	get endsTubeAfter(): number;
 
 	get backgroundURL(): string;
+
+	/**
+	 * The number of players that can play on this board.
+	 */
+	get maxPlayers(): number;
 }
 
 export class InvalidSquareError extends Error {
