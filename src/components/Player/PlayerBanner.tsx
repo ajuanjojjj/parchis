@@ -1,8 +1,8 @@
 import { memo, useCallback, useState } from 'react';
 import { Dice, type DiceValue } from '../Dice/Dice';
 import styles from './PlayerBanner.module.css';
-import { RTC_Host } from '../../ts/host';
-import { RTC_Client } from '../../ts/client';
+import { RTC_Host } from '../../ts/RTC/host';
+import { RTC_Client } from '../../ts/RTC/client';
 import type { AddPlayer, PlayerInterface } from '../../ts/Player';
 import type { Application } from 'pixi.js';
 
@@ -116,24 +116,23 @@ function ConnectPlayer(props: { player: AddPlayer; app: Application | null; }) {
 			try {
 				const parsed = JSON.parse(fromBase64(response ?? ""));
 				host.connectClient(parsed.offer, parsed.candidates);
-				alert("You are smart. You are the host.");
 			} catch {
 				alert("asshole");
 				host.kill();
 				return;
 			}
 
-			return;
+			return props.player.setRemote(props.app, host);
 		}
 
 		if (result == "join") {
 			const offer = prompt("Paste the host offer");
 			let response;
+			let client: RTC_Client;
 			try {
 				const parsed = JSON.parse(fromBase64(offer ?? ""));
-				const client = new RTC_Client();
+				client = new RTC_Client();
 				response = client.init(parsed.offer, parsed.candidates);
-				alert("You are smart. You are the client.");
 			} catch {
 				alert("asshole");
 				return;
@@ -149,7 +148,7 @@ function ConnectPlayer(props: { player: AddPlayer; app: Application | null; }) {
 			}
 
 
-			return;
+			return props.player.setRemote(props.app, client);
 		}
 	});
 

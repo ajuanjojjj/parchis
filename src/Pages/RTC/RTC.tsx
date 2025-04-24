@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Input } from "../../components/Input";
-import { RTC_Host, type RTC_Host_Init } from "../../ts/host";
-import { RTC_Client, type RTC_Client_Init } from "../../ts/client";
+import { RTC_Host, type RTC_Host_Init } from "../../ts/RTC/host";
+import { RTC_Client, type RTC_Client_Init } from "../../ts/RTC/client";
 
 export function RTC() {
 	const [mode, setMode] = useState<null | "host" | "client">(null);
@@ -40,14 +40,9 @@ function HostElement() {
 		if (!answer.answer) throw new Error("Answer is null or undefined");
 		if (!answer.candidates) throw new Error("Candidates is null or undefined");
 
-		host.current.connectClient(answer.answer, answer.candidates).then(() => {
-			setIsReady(true);
-		});
+		host.current.connectClient(answer.answer, answer.candidates);
+		setIsReady(true);
 
-
-		host.current.onOpen = () => {
-			console.log("Data channel is open");
-		};
 		host.current.onMessage = (message: string) => {
 			setMessages((prev) => [...prev, message]);
 		};
@@ -101,9 +96,6 @@ function ClientElement() {
 			setIsReady(true);
 		});
 
-		host.current.onOpen = () => {
-			console.log("Data channel is open");
-		};
 		host.current.onMessage = (message: string) => {
 			setMessages((prev) => [...prev, message]);
 		};

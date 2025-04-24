@@ -20,7 +20,6 @@ export class RTC_Client {
 		return { answer, candidates };
 	}
 
-	onOpen: () => void = () => { };
 	onMessage: (msg: string) => void = () => { };
 	onClose: () => void = () => { };
 
@@ -59,9 +58,6 @@ export class RTC_Client {
 
 	private setupDataChannel(dataChannel: RTCDataChannel) {
 		this.dataChannel = dataChannel;
-		this.dataChannel.onopen = () => {
-			this.onOpen();
-		};
 		this.dataChannel.onmessage = (event) => {
 			this.onMessage(event.data);
 		};

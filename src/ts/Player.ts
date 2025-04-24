@@ -2,6 +2,7 @@ import type { DiceValue } from "../components/Dice/Dice";
 import type { Parchis } from "./Parchis";
 import { PixiPiece } from "../components/PixiPiece";
 import type { Application } from "pixi.js";
+import type { RTC_Instance } from "./RTC/Connection";
 
 export abstract class PlayerInterface {
 	public abstract readonly type: "robot" | "remote" | "local" | "none";
@@ -53,17 +54,27 @@ export class LocalPlayer extends PlayerInterface {
 		const piecesCount = customPiecesCount ?? this.game.board.intendedPiecesCount;	// Default to board's pieces count if not specified
 		for (let i = 0; i < piecesCount; i++) {
 			const piece = new PixiPiece(playerId, i, (1000 * playerId) + (i + 1), game, game.board, app);
-			console.log("Creating piece ", i, " for player ", playerId, " at position ", (1000 * playerId) + (i + 1));
-
 			this.pieces.set(i, piece);
 		}
-		console.log("Pieces created for player ", playerId, ":", this.pieces);
 
 
 		// @ts-ignore -- This is a hack to access the player from the global window object
 		if (window.parchis == null) window.parchis = {};	// Create the parchis object if it doesn't exist
 		// @ts-ignore -- This is a hack to access the player from the global window object
 		window.parchis["player" + playerId] = this;
+	}
+}
+export class RemotePlayer extends PlayerInterface {
+	public readonly type = "local";
+
+	constructor(playerId: number, game: Parchis, app: Application, customPiecesCount?: number) {
+		super(playerId, game);
+
+		const piecesCount = customPiecesCount ?? this.game.board.intendedPiecesCount;	// Default to board's pieces count if not specified
+		for (let i = 0; i < piecesCount; i++) {
+			const piece = new PixiPiece(playerId, i, (1000 * playerId) + (i + 1), game, game.board, app);
+			this.pieces.set(i, piece);
+		}
 	}
 }
 export class RobotPlayer extends PlayerInterface {
@@ -99,10 +110,11 @@ export class AddPlayer extends PlayerInterface {
 		);
 	}
 
-	setRemote(app: Application): void {
+	setRemote(app: Application, remote: RTC_Instance): void {
 		this.game.players.set(this.playerId,
 			new LocalPlayer(this.playerId, this.game, app)
 		);
+		// this.game.addRemote(remote);
 	}
 
 	setRobot(app: Application): void {

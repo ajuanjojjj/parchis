@@ -34,8 +34,6 @@ export class RTC_Host {
 	}
 
 
-
-	onOpen: () => void = () => { };
 	onMessage: (msg: string) => void = () => { };
 	onClose: () => void = () => { };
 
@@ -83,9 +81,7 @@ export class RTC_Host {
 
 	private getChannel(label: string) {
 		const channel = this.peerConnection.createDataChannel(label);
-		channel.onopen = () => {
-			this.onOpen();
-		};
+
 		channel.onmessage = (event) => {
 			this.onMessage(event.data);
 		};
