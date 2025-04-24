@@ -2,7 +2,7 @@ import type { DiceValue } from "../components/Dice/Dice";
 import type { Parchis } from "./Parchis";
 import { PixiPiece } from "../components/PixiPiece";
 import type { Application } from "pixi.js";
-import type { RTC_Instance } from "./RTC/Connection";
+import type { RemoteMessage, RTC_Instance } from "./RTC/Connection";
 
 export abstract class PlayerInterface {
 	public abstract readonly type: "robot" | "remote" | "local" | "none";
@@ -33,10 +33,6 @@ export abstract class PlayerInterface {
 			RollDice(),
 		]);
 	}
-	movePiece(pieceId: number, newPosition: number, animate: boolean): void {
-		this.game.movePiece(this.playerId, pieceId, newPosition, animate);
-	}
-
 
 	get canDiceRoll(): boolean {
 		return true;
@@ -63,8 +59,19 @@ export class LocalPlayer extends PlayerInterface {
 		// @ts-ignore -- This is a hack to access the player from the global window object
 		window.parchis["player" + playerId] = this;
 	}
+
+	movePiece(pieceId: number, newPosition: number, animate: boolean): void {
+		this.game.movePiece(this.playerId, pieceId, newPosition, animate);
+		this.game.notifyRemotes({
+			type: "move",
+			playerId: this.playerId,
+			pieceId: pieceId,
+			newPosition: newPosition,
+			animate: animate,
+		});
+	}
 }
-export class RemotePlayer extends PlayerInterface {
+export class HostPlayer extends PlayerInterface {
 	public readonly type = "local";
 
 	constructor(playerId: number, game: Parchis, app: Application, customPiecesCount?: number) {
@@ -76,7 +83,42 @@ export class RemotePlayer extends PlayerInterface {
 			this.pieces.set(i, piece);
 		}
 	}
+
+	movePiece(pieceId: number, newPosition: number, animate: boolean): void {
+		this.game.movePiece(this.playerId, pieceId, newPosition, animate);
+	}
 }
+export class ClientPlayer extends PlayerInterface {
+	public readonly type = "robot";
+
+	constructor(playerId: number, game: Parchis, app: Application, customPiecesCount?: number) {
+		super(playerId, game);
+		console.log("Creating local player ", playerId, ", access it with window.parchis.player" + playerId);
+
+		const piecesCount = customPiecesCount ?? this.game.board.intendedPiecesCount;	// Default to board's pieces count if not specified
+		for (let i = 0; i < piecesCount; i++) {
+			const piece = new PixiPiece(playerId, i, (1000 * playerId) + (i + 1), game, game.board, app);
+			this.pieces.set(i, piece);
+		}
+
+		// @ts-ignore -- This is a hack to access the player from the global window object
+		if (window.parchis == null) window.parchis = {};	// Create the parchis object if it doesn't exist
+		// @ts-ignore -- This is a hack to access the player from the global window object
+		window.parchis["player" + playerId] = this;
+	}
+
+	movePiece(pieceId: number, newPosition: number, animate: boolean): void {
+		this.game.movePiece(this.playerId, pieceId, newPosition, animate);
+		this.game.notifyRemotes({
+			type: "move",
+			playerId: this.playerId,
+			pieceId: pieceId,
+			newPosition: newPosition,
+			animate: animate,
+		});
+	}
+}
+
 export class RobotPlayer extends PlayerInterface {
 	public readonly type = "robot";
 
@@ -95,8 +137,18 @@ export class RobotPlayer extends PlayerInterface {
 		// @ts-ignore -- This is a hack to access the player from the global window object
 		window.parchis["player" + playerId] = this;
 	}
-}
 
+	movePiece(pieceId: number, newPosition: number, animate: boolean): void {
+		this.game.movePiece(this.playerId, pieceId, newPosition, animate);
+		this.game.notifyRemotes({
+			type: "move",
+			playerId: this.playerId,
+			pieceId: pieceId,
+			newPosition: newPosition,
+			animate: animate,
+		});
+	}
+}
 export class AddPlayer extends PlayerInterface {
 	readonly type = "none";
 
@@ -110,11 +162,56 @@ export class AddPlayer extends PlayerInterface {
 		);
 	}
 
-	setRemote(app: Application, remote: RTC_Instance): void {
+	setHost(app: Application, remote: RTC_Instance): void {
 		this.game.players.set(this.playerId,
-			new LocalPlayer(this.playerId, this.game, app)
+			new HostPlayer(this.playerId, this.game, app)
 		);
-		// this.game.addRemote(remote);
+
+		const unsubscibe = this.game.addRemote(remote);
+		remote.onClose = unsubscibe;
+		remote.onMessage = (msg: string) => {
+			const data = JSON.parse(msg) as RemoteMessage;
+
+			if (data.type === "move") {
+				this.game.movePiece(data.playerId, data.pieceId, data.newPosition, true);
+			} else if (data.type === "diceResult") {
+				const player = this.game.players.get(data.playerId);
+				if (!player) throw new Error("Player not found");
+
+				player.onRollDices?.(data.result);
+			} else if (data.type === "diceRequest") {
+				const player = this.game.players.get(data.playerId);
+				if (!player) throw new Error("Player not found");
+
+				player.onRollDices?.([null, null]);
+			}
+		};
+	}
+
+	setClient(app: Application, remote: RTC_Instance): void {
+		this.game.players.set(this.playerId,
+			new ClientPlayer(this.playerId, this.game, app)
+		);
+
+		const unsubscibe = this.game.addRemote(remote);
+		remote.onClose = unsubscibe;
+		remote.onMessage = (msg: string) => {
+			const data = JSON.parse(msg) as RemoteMessage;
+
+			if (data.type === "move") {
+				this.game.movePiece(data.playerId, data.pieceId, data.newPosition, true);
+			} else if (data.type === "diceResult") {
+				const player = this.game.players.get(data.playerId);
+				if (!player) throw new Error("Player not found");
+
+				player.onRollDices?.(data.result);
+			} else if (data.type === "diceRequest") {
+				const player = this.game.players.get(data.playerId);
+				if (!player) throw new Error("Player not found");
+
+				player.onRollDices?.([null, null]);
+			}
+		};
 	}
 
 	setRobot(app: Application): void {

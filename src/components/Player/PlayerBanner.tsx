@@ -1,8 +1,8 @@
 import { memo, useCallback, useState } from 'react';
 import { Dice, type DiceValue } from '../Dice/Dice';
 import styles from './PlayerBanner.module.css';
-import { RTC_Host } from '../../ts/RTC/host';
-import { RTC_Client } from '../../ts/RTC/client';
+import { RTC_Host, type RTC_Host_Offer } from '../../ts/RTC/host';
+import { RTC_Client, type RTC_Client_Response } from '../../ts/RTC/client';
 import type { AddPlayer, PlayerInterface } from '../../ts/Player';
 import type { Application } from 'pixi.js';
 
@@ -93,7 +93,7 @@ function ConnectPlayer(props: { player: AddPlayer; app: Application | null; }) {
 		if (result == "bot") return props.player.setRobot(props.app);
 
 		if (result == "invite") {
-			let connection;
+			let connection: RTC_Host_Offer;
 			const host = new RTC_Host();
 			try {
 				connection = await host.init();
@@ -111,28 +111,28 @@ function ConnectPlayer(props: { player: AddPlayer; app: Application | null; }) {
 			} catch {
 				alert("Send this to the client: " + connString);
 			}
-			const response = prompt("Paste the client response");
+			const response = prompt("Paste the client response")?.trim().replace(/^```/, "").replace(/```$/, "");
 
 			try {
 				const parsed = JSON.parse(fromBase64(response ?? ""));
-				host.connectClient(parsed.offer, parsed.candidates);
+				host.connectClient(parsed.answer, parsed.candidates);
 			} catch {
 				alert("asshole");
 				host.kill();
 				return;
 			}
 
-			return props.player.setRemote(props.app, host);
+			return props.player.setHost(props.app, host);
 		}
 
 		if (result == "join") {
-			const offer = prompt("Paste the host offer");
-			let response;
+			const offer = prompt("Paste the host offer")?.trim().replace(/^```/, "").replace(/```$/, "");
+			let response: RTC_Client_Response;
 			let client: RTC_Client;
 			try {
 				const parsed = JSON.parse(fromBase64(offer ?? ""));
 				client = new RTC_Client();
-				response = client.init(parsed.offer, parsed.candidates);
+				response = await client.init(parsed.offer, parsed.candidates);
 			} catch {
 				alert("asshole");
 				return;
@@ -141,14 +141,14 @@ function ConnectPlayer(props: { player: AddPlayer; app: Application | null; }) {
 			const connString = toBase64(JSON.stringify(response));
 			try {
 				await navigator.clipboard.writeText(`\`\`\`${connString}\`\`\``);
-				console.log("Connection string copied to clipboard:", connString);
+				console.log("Connection string copied to clipboard:", (response), connString);
 				alert("Connection string copied to clipboard. Send it to the client.");
 			} catch {
 				alert("Send this to the client: " + connString);
 			}
 
 
-			return props.player.setRemote(props.app, client);
+			return props.player.setClient(props.app, client);
 		}
 	});
 

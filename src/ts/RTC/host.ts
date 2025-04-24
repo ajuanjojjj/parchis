@@ -8,7 +8,7 @@ export class RTC_Host {
 		});
 	}
 
-	public async init(): Promise<RTC_Host_Init> {
+	public async init(): Promise<RTC_Host_Offer> {
 		const localCandidates = this.getCandidates();
 		const channel = this.getChannel("chat");
 
@@ -22,9 +22,9 @@ export class RTC_Host {
 		};
 	}
 
-	public connectClient(offerInit: RTCSessionDescriptionInit, candidatesInit: RTCIceCandidateInit[]) {
-		this.setIceCandidates(candidatesInit);
-		this.setAnswer(offerInit);
+	public async connectClient(offerInit: RTCSessionDescriptionInit, candidatesInit: RTCIceCandidateInit[]) {
+		await this.setAnswer(offerInit);
+		await this.setIceCandidates(candidatesInit);
 	}
 
 	public kill() {
@@ -109,7 +109,7 @@ export class RTC_Host {
 
 }
 
-export interface RTC_Host_Init {
+export interface RTC_Host_Offer {
 	offer: RTCSessionDescription,
 	candidates: RTCIceCandidateInit[];
 }

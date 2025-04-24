@@ -1,10 +1,12 @@
 import type { BoardInterface } from "../components/Board/BoardInterface";
 import { getMapStore, type MapStore } from "./Store";
 import { type PlayerInterface, AddPlayer } from "./Player";
+import type { RemoteMessage, RTC_Instance } from "./RTC/Connection";
 
 export class Parchis {
 	public readonly board: BoardInterface;
 	public players: MapStore<number, PlayerInterface>;
+	private remotes = new Set<RTC_Instance>;
 
 	private get allPieces() {
 		const players = this.players.values();
@@ -91,4 +93,16 @@ export class Parchis {
 	// 	return true;
 	// }
 
+	public addRemote(remote: RTC_Instance) {
+		this.remotes.add(remote);
+		return () => {
+			this.remotes.delete(remote);
+		};
+	}
+
+	public notifyRemotes(message: RemoteMessage) {
+		this.remotes.forEach(remote => {
+			remote.sendMessage(JSON.stringify(message));
+		});
+	}
 }

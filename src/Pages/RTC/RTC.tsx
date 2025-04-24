@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Input } from "../../components/Input";
-import { RTC_Host, type RTC_Host_Init } from "../../ts/RTC/host";
-import { RTC_Client, type RTC_Client_Init } from "../../ts/RTC/client";
+import { RTC_Host, type RTC_Host_Offer } from "../../ts/RTC/host";
+import { RTC_Client, type RTC_Client_Response } from "../../ts/RTC/client";
 
 export function RTC() {
 	const [mode, setMode] = useState<null | "host" | "client">(null);
@@ -19,7 +19,7 @@ export function RTC() {
 
 function HostElement() {
 	const host = useRef(new RTC_Host());
-	const [offer, setOffer] = useState<RTC_Host_Init>();
+	const [offer, setOffer] = useState<RTC_Host_Offer>();
 	const [messages, setMessages] = useState(new Array<string>());
 	const [isReady, setIsReady] = useState(false);
 
@@ -78,7 +78,7 @@ function HostElement() {
 
 function ClientElement() {
 	const host = useRef(new RTC_Client());
-	const [answer, setAnswer] = useState<RTC_Client_Init>();
+	const [answer, setAnswer] = useState<RTC_Client_Response>();
 	const [messages, setMessages] = useState(new Array<string>());
 	const [isReady, setIsReady] = useState(false);
 

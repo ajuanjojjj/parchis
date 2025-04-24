@@ -8,8 +8,7 @@ export class RTC_Client {
 		});
 	}
 
-
-	public async init(offer: RTCSessionDescriptionInit, remoteCandidates: RTCIceCandidateInit[]): Promise<RTC_Client_Init> {
+	public async init(offer: RTCSessionDescriptionInit, remoteCandidates: RTCIceCandidateInit[]): Promise<RTC_Client_Response> {
 		const answer = await this.createAnswer(offer);
 		const candidates = await this.getCandidates();
 
@@ -17,7 +16,10 @@ export class RTC_Client {
 
 		await this.setIceCandidates(remoteCandidates);
 
-		return { answer, candidates };
+		return {
+			answer,
+			candidates,
+		};
 	}
 
 	onMessage: (msg: string) => void = () => { };
@@ -41,13 +43,11 @@ export class RTC_Client {
 	private getCandidates() {
 		return new Promise<Array<RTCIceCandidate>>((resolve) => {
 			const candidates = new Array<RTCIceCandidate>();
-			this.peerConnection.onicecandidate = (event) => {
 
+			this.peerConnection.onicecandidate = (event) => {
 				if (event.candidate === null) {
 					console.log("all ICE gathering on all transports is complete.");
 					resolve(candidates);
-				} else if ((event.candidate as unknown) == "") {
-					console.log(" no further candidates to come in this generation.");
 				} else if (event.candidate) {
 					console.log("ICE Candidate Found:", event.candidate);
 					candidates.push(event.candidate);
@@ -56,17 +56,19 @@ export class RTC_Client {
 		});
 	}
 
-	private setupDataChannel(dataChannel: RTCDataChannel) {
-		this.dataChannel = dataChannel;
-		this.dataChannel.onmessage = (event) => {
+	private setupDataChannel(channel: RTCDataChannel) {
+		this.dataChannel = channel;
+
+		channel.onmessage = (event) => {
 			this.onMessage(event.data);
 		};
-		this.dataChannel.onclose = () => {
+		channel.onclose = () => {
 			this.onClose();
 		};
-		this.dataChannel.onerror = (event) => {
+		channel.onerror = (event) => {
 			console.error("Data channel error:", event);
 		};
+
 	}
 
 	private async createAnswer(remoteInit: RTCSessionDescriptionInit) {
@@ -88,10 +90,9 @@ export class RTC_Client {
 		}
 	}
 
-
 }
 
-export interface RTC_Client_Init {
+export interface RTC_Client_Response {
 	answer: RTCSessionDescription,
 	candidates: RTCIceCandidateInit[];
 }
