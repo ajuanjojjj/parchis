@@ -33,27 +33,31 @@ export interface StoreInterface<T> {
 }
 
 export function getMapStore<K, V>(initialValue: Map<K, V>): MapStore<K, V> {
-	const store = getStore(() => initialValue);
-	let lastMap: Map<K, V> | undefined;
-	let lastKeys: Array<K> | undefined;
-	let lastValues: Array<V> | undefined;
+	let map = initialValue;
+	let lastKeys = Array.from(initialValue.keys());
+	let lastValues = Array.from(initialValue.values());
 
+	const store = getStore(() => map);
+
+	let lastMap = initialValue;
 	function updateCacheSnapshot() {
 		lastMap = store.getSnapshot();
-		lastKeys = Array.from(store.getSnapshot().keys());;
-		lastValues = Array.from(store.getSnapshot().values());;
+		lastKeys = Array.from(store.getSnapshot().keys());
+		lastValues = Array.from(store.getSnapshot().values());
+		console.log("Updating cache snapshot", map, lastKeys, lastValues);
+
 	}
 
 	return {
 		...store,
 		set: (key: K, value: V) => {
-			const newMap = new Map(store.getSnapshot());
-			newMap.set(key, value);
+			map = new Map(store.getSnapshot().entries());
+			map.set(key, value);
 			store.notify();
 		},
 		delete: (key: K) => {
-			const newMap = new Map(store.getSnapshot());
-			newMap.delete(key);
+			map = new Map(store.getSnapshot().entries());
+			map.delete(key);
 			store.notify();
 		},
 
@@ -62,13 +66,13 @@ export function getMapStore<K, V>(initialValue: Map<K, V>): MapStore<K, V> {
 		},
 
 		values: () => {
-			if (!Object.is(lastMap, store.getSnapshot())) updateCacheSnapshot();
+			if (!Object.is(map, lastMap)) updateCacheSnapshot();
 			if (lastValues == undefined) throw new Error("lastValues is undefined");
 			return lastValues;
 		},
 
 		keys: () => {
-			if (!Object.is(lastMap, store.getSnapshot())) updateCacheSnapshot();
+			if (!Object.is(map, lastMap)) updateCacheSnapshot();
 			if (lastKeys == undefined) throw new Error("lastKeys is undefined");
 			return lastKeys;
 		},

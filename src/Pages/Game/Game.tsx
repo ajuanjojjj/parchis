@@ -18,7 +18,7 @@ function App() {
 			<PixiBoard id={styles.Board} board={board} app={app} />
 
 			{playersArr.map((player) => (
-				<MemoPlayerElement key={player.playerId} player={player} />
+				<MemoPlayerElement key={player.playerId} player={player} app={app} />
 			))}
 		</div>
 	);

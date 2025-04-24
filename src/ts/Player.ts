@@ -1,6 +1,7 @@
 import type { DiceValue } from "../components/Dice/Dice";
 import type { Parchis } from "./Parchis";
 import { PixiPiece } from "../components/PixiPiece";
+import type { Application } from "pixi.js";
 
 export abstract class PlayerInterface {
 	public abstract readonly type: "robot" | "remote" | "local" | "none";
@@ -45,15 +46,19 @@ export abstract class PlayerInterface {
 export class LocalPlayer extends PlayerInterface {
 	public readonly type = "local";
 
-	constructor(playerId: number, game: Parchis, customPiecesCount?: number) {
+	constructor(playerId: number, game: Parchis, app: Application, customPiecesCount?: number) {
 		super(playerId, game);
 		console.log("Creating local player ", playerId, ", access it with window.parchis.player" + playerId);
 
 		const piecesCount = customPiecesCount ?? this.game.board.intendedPiecesCount;	// Default to board's pieces count if not specified
 		for (let i = 0; i < piecesCount; i++) {
-			const piece = new PixiPiece(playerId, i, 1000 + (i + 1), game, game.board);
+			const piece = new PixiPiece(playerId, i, (1000 * playerId) + (i + 1), game, game.board, app);
+			console.log("Creating piece ", i, " for player ", playerId, " at position ", (1000 * playerId) + (i + 1));
+
 			this.pieces.set(i, piece);
 		}
+		console.log("Pieces created for player ", playerId, ":", this.pieces);
+
 
 		// @ts-ignore -- This is a hack to access the player from the global window object
 		if (window.parchis == null) window.parchis = {};	// Create the parchis object if it doesn't exist
@@ -64,13 +69,13 @@ export class LocalPlayer extends PlayerInterface {
 export class RobotPlayer extends PlayerInterface {
 	public readonly type = "robot";
 
-	constructor(playerId: number, game: Parchis, customPiecesCount?: number) {
+	constructor(playerId: number, game: Parchis, app: Application, customPiecesCount?: number) {
 		super(playerId, game);
 		console.log("Creating local player ", playerId, ", access it with window.parchis.player" + playerId);
 
 		const piecesCount = customPiecesCount ?? this.game.board.intendedPiecesCount;	// Default to board's pieces count if not specified
 		for (let i = 0; i < piecesCount; i++) {
-			const piece = new PixiPiece(playerId, i, 1000 + (i + 1), game, game.board);
+			const piece = new PixiPiece(playerId, i, (1000 * playerId) + (i + 1), game, game.board, app);
 			this.pieces.set(i, piece);
 		}
 
@@ -88,18 +93,21 @@ export class AddPlayer extends PlayerInterface {
 		super(playerId, game);
 	}
 
-	setLocal(): void {
+	setLocal(app: Application): void {
 		this.game.players.set(this.playerId,
-			new LocalPlayer(this.playerId, this.game)
+			new LocalPlayer(this.playerId, this.game, app)
 		);
 	}
 
-	setRemote(): void {
+	setRemote(app: Application): void {
+		this.game.players.set(this.playerId,
+			new LocalPlayer(this.playerId, this.game, app)
+		);
 	}
 
-	setRobot(): void {
+	setRobot(app: Application): void {
 		this.game.players.set(this.playerId,
-			new RobotPlayer(this.playerId, this.game)
+			new RobotPlayer(this.playerId, this.game, app)
 		);
 	}
 }

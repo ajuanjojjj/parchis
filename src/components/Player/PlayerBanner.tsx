@@ -4,8 +4,9 @@ import styles from './PlayerBanner.module.css';
 import { RTC_Host } from '../../ts/host';
 import { RTC_Client } from '../../ts/client';
 import type { AddPlayer, PlayerInterface } from '../../ts/Player';
+import type { Application } from 'pixi.js';
 
-export function PlayerBanner(props: { player: PlayerInterface | AddPlayer; }) {
+export function PlayerBanner(props: { player: PlayerInterface | AddPlayer; app: Application | null; }) {
 	const playerId = props.player.playerId;
 	const colors = [
 		"#e94738",
@@ -26,7 +27,7 @@ export function PlayerBanner(props: { player: PlayerInterface | AddPlayer; }) {
 	if (props.player.type == "none") {
 		return (
 			<div style={playerStyle}>
-				<ConnectPlayer player={props.player as AddPlayer} />
+				<ConnectPlayer player={props.player as AddPlayer} app={props.app} />
 			</div>
 		);
 	}
@@ -80,11 +81,16 @@ function PlayerLandscape(props: { player: PlayerInterface; }) {
 		</div>
 	);
 }
-function ConnectPlayer(props: { player: AddPlayer; }) {
+function ConnectPlayer(props: { player: AddPlayer; app: Application | null; }) {
 	const onClickAdd = (async () => {
+		if (props.app == null) {
+			alert("App is not initialized yet. Please try again.");
+			return;
+		}
+
 		const result = window.prompt(`Enter "bot" or "join" or "invite" or "local"`);
-		if (result == "local") return props.player.setLocal();
-		if (result == "bot") return props.player.setRobot();
+		if (result == "local") return props.player.setLocal(props.app);
+		if (result == "bot") return props.player.setRobot(props.app);
 
 		if (result == "invite") {
 			let connection;

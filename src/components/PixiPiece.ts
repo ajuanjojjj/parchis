@@ -1,4 +1,4 @@
-import { Assets, Sprite, type FederatedPointerEvent } from "pixi.js";
+import { Assets, Sprite, type Application, type FederatedPointerEvent } from "pixi.js";
 import { gsap } from "gsap"; // To animate the movement
 import type { BoardInterface } from "./Board/BoardInterface";
 import { Howl } from "howler"; // For sound effects
@@ -18,12 +18,7 @@ export class PixiPiece {
 	public readonly pieceId: number;	// I need my identity to report the move to the game
 	public position: number;			// Tenicamente la posicion deberia estar en otra entidad. Tenicamente solo tendria la id compuesta y la posicion, asi que aqui se queda.
 
-	public get spriteRef(): Sprite {
-		return this.sprite;
-	}
-
-
-	constructor(playerId: number, pieceId: number, position: number, game: Parchis, board: BoardInterface) {
+	constructor(playerId: number, pieceId: number, position: number, game: Parchis, board: BoardInterface, app: Application) {
 		const color = (["red", "yellow", "blue", "green"] as const)[playerId - 1]!;
 		const sprite = new Sprite();
 		const coords = board.getCoordinates(position, 1, 0);
@@ -52,6 +47,8 @@ export class PixiPiece {
 		this.position = position;
 
 		this.sound = getSounds();
+
+		app.stage.addChild(sprite); // Add the sprite to the stage
 	}
 
 	private onPointerDown() {

@@ -44,30 +44,39 @@ export class Parchis {
 
 		const piece = player.pieces.get(pieceId);
 		if (piece == null) {
+			console.error(player.pieces.keys(), pieceId);
 			throw new Error(`The player ${playerId} dont has the piece ${pieceId}`);
 		}
 
 		const extraMoves = new Array<number>();
 
-		const piecesAtPosition = this.allPieces
+		const piecesAtNewPosition = this.allPieces
 			.filter(p => p.playerId != playerId || p.pieceId !== pieceId)	// Filter out the piece itself
 			.filter(p => p.position === newPosition)	// Filter out the pieces at the new position
 			;
 
 
-		const piecesCount = piecesAtPosition.length + 1;	// +1 for the piece itself
-		// Rearrange the current pieces
-		piecesAtPosition.forEach((piece, index) => {
-			piece.staticMove(newPosition, piecesCount, index);
+		const piecesCount = piecesAtNewPosition.length + 1;	// +1 for the piece itself
+		piecesAtNewPosition.forEach((piece, index) => {	// Rearrange the current pieces
+			piece.staticMove(piece.position, piecesAtNewPosition.length + 1, index);
 		});
 
 		// Move the piece to the new position
 		if (animate) {
 			// TODO Get all the steps and moves and such and animate the piece
-			piece.staticMove(newPosition, piecesCount, piecesAtPosition.length);
+			piece.staticMove(newPosition, piecesCount, piecesAtNewPosition.length);
 		} else {
-			piece.staticMove(newPosition, piecesCount, piecesAtPosition.length);
+			piece.staticMove(newPosition, piecesCount, piecesAtNewPosition.length);
 		}
+
+		const piecesAtOldPosition = this.allPieces
+			.filter(p => p.playerId != playerId || p.pieceId !== pieceId)	// Filter out the piece itself
+			.filter(p => p.position === piece.position)	// Filter out the pieces at the new position
+			;
+		piecesAtOldPosition.forEach((piece, index) => {	// Rearrange the current pieces
+			piece.staticMove(piece.position, piecesAtOldPosition.length, index);
+		});
+
 		piece.position = newPosition;	// Update the position of the piece
 
 		return extraMoves;
