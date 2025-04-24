@@ -1,7 +1,7 @@
 import { Application, Assets } from "pixi.js";
 import { useState, useEffect } from "react";
 
-export function usePixiApp(size: number, pixiContainer: React.RefObject<HTMLDivElement | null>) {
+export function usePixiApp(size: number) {
 	const [app, setApp] = useState<Application | null>(null);
 
 	useEffect(() => {
@@ -28,9 +28,7 @@ export function usePixiApp(size: number, pixiContainer: React.RefObject<HTMLDivE
 			]);
 
 
-			if (pixiContainer.current && !killed) {
-				pixiContainer.current.innerHTML = ""; // Clear previous content
-				pixiContainer.current.appendChild(pixiApp.canvas);
+			if (!killed) {
 
 				setApp(pixiApp);
 				initialized = true;
@@ -57,7 +55,7 @@ export function usePixiApp(size: number, pixiContainer: React.RefObject<HTMLDivE
 			console.log(`PixiApp destroyed. Was initialized: ${initialized}. Was killed early: ${killed}`);
 
 		};
-	}, [pixiContainer, size]);
+	}, [size]);
 
 	return app;
 }

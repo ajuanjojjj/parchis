@@ -1,0 +1,111 @@
+export function getStore<T>(getSnapshot: () => T): StoreInterface<T> {
+	const suscribers = new Set<() => void>();
+
+	return {
+		subscribe: (callback: () => void) => {
+			suscribers.add(callback);
+			return () => {
+				suscribers.delete(callback);
+			};
+		},
+		getSnapshot: getSnapshot,
+		notify: () => {
+			suscribers.forEach((callback) => callback());
+		}
+	};
+}
+export interface StoreInterface<T> {
+	/**
+	 * @returns The current state of the store.
+	 */
+	getSnapshot: () => Readonly<T>;
+
+	/**
+	 * @param callback - The callback to be called when the store changes. 
+	 * @returns A function to unsubscribe from the store.
+	 */
+	subscribe: (callback: VoidFunction) => VoidFunction;
+
+	/**
+	 * @param callback - The callback to be called when the store changes. 
+	 */
+	notify: VoidFunction;
+}
+
+export function getMapStore<K, V>(initialValue: Map<K, V>): MapStore<K, V> {
+	const store = getStore(() => initialValue);
+	let lastMap: Map<K, V> | undefined;
+	let lastKeys: Array<K> | undefined;
+	let lastValues: Array<V> | undefined;
+
+	function updateCacheSnapshot() {
+		lastMap = store.getSnapshot();
+		lastKeys = Array.from(store.getSnapshot().keys());;
+		lastValues = Array.from(store.getSnapshot().values());;
+	}
+
+	return {
+		...store,
+		set: (key: K, value: V) => {
+			const newMap = new Map(store.getSnapshot());
+			newMap.set(key, value);
+			store.notify();
+		},
+		delete: (key: K) => {
+			const newMap = new Map(store.getSnapshot());
+			newMap.delete(key);
+			store.notify();
+		},
+
+		get(key: K): V | undefined {
+			return store.getSnapshot().get(key);
+		},
+
+		values: () => {
+			if (!Object.is(lastMap, store.getSnapshot())) updateCacheSnapshot();
+			if (lastValues == undefined) throw new Error("lastValues is undefined");
+			return lastValues;
+		},
+
+		keys: () => {
+			if (!Object.is(lastMap, store.getSnapshot())) updateCacheSnapshot();
+			if (lastKeys == undefined) throw new Error("lastKeys is undefined");
+			return lastKeys;
+		},
+	};
+}
+
+export interface MapStore<K, V> extends StoreInterface<Map<K, V>> {
+	/**
+	 * @param key - The key to be added to the store.
+	 * @param value - The value to be added to the store.
+	 */
+	set: (key: K, value: V) => void;
+
+	/**
+	 * @param key - The key to be removed from the store.
+	 */
+	delete: (key: K) => void;
+
+	/**
+	 * @param key - The key to be retrieved from the store.
+	 * @returns The value of the key in the store.
+	 */
+	get: (key: K) => V | undefined;
+
+	/**
+	 * @returns The values of the store.
+	 */
+	values: () => V[];
+
+	/**
+	 * @returns The keys of the store as an array.
+	 */
+	keys: () => K[];
+}
+
+
+/**
+ * A function that takes no arguments and returns nothing.
+ */
+type VoidFunction = () => void;	

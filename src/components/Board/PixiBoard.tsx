@@ -1,17 +1,23 @@
 import { useEffect, useRef } from "react";
-import { Assets, Sprite } from "pixi.js";
-import { usePixiApp } from "../../hooks/usePixiApp";
+import { Assets, Sprite, type Application } from "pixi.js";
 import type { BoardInterface } from "./BoardInterface";
-import type { PlayerInterface } from "../../ts/Parchis";
 
-export function PixiBoard(props: { id: string; board: BoardInterface | null; setPlayers: (newPlayers: PlayerInterface[]) => void; }) {
+export function PixiBoard(props: { id: string; board: BoardInterface; app: Application | null; }) {
 	const pixiContainer = useRef<HTMLDivElement>(null);
-	const app = usePixiApp(1000, pixiContainer);
+	const { board, app } = props;
+
+	useEffect(() => {
+		if (pixiContainer.current == null) return;
+		if (app == null) return;
+
+		pixiContainer.current.innerHTML = ""; // Clear previous content
+		pixiContainer.current.appendChild(app.canvas);
+	}, [pixiContainer, app]);
 
 	useEffect(() => {
 		if (app == null) return;
-		if (props.board == null) return;
-		const boardImage = props.board.backgroundURL;
+		if (board == null) return;
+		const boardImage = board.backgroundURL;
 
 		const boardSprite = new Sprite();
 		boardSprite.width = app.canvas.width;
@@ -31,10 +37,7 @@ export function PixiBoard(props: { id: string; board: BoardInterface | null; set
 			app.stage.removeChild(boardSprite);
 			boardSprite.destroy({ children: true });
 		};
-	}, [props.board, app]);
+	}, [board, app]);
 
 	return <div ref={pixiContainer} id={props.id} />;
 };
-
-
-// const game = new Parchis(board);

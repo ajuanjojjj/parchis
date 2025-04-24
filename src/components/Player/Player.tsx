@@ -1,11 +1,12 @@
-import { useCallback, useState } from 'react';
+import { memo, useCallback, useState } from 'react';
 import { Dice, type DiceValue } from '../Dice/Dice';
 import styles from './Player.module.css';
 import { RTC_Host } from '../../ts/host';
 import { RTC_Client } from '../../ts/client';
 import type { AddPlayer, PlayerInterface } from '../../ts/Parchis';
 
-export function PlayerElement(props: { id?: string; className?: string; player: PlayerInterface | AddPlayer; playerId: number; }) {
+export function PlayerElement(props: { player: PlayerInterface | AddPlayer; }) {
+	const playerId = props.player.playerId;
 	const colors = [
 		"#e94738",
 		"#fac51d",
@@ -14,17 +15,17 @@ export function PlayerElement(props: { id?: string; className?: string; player: 
 	];
 
 	const playerStyle = {
-		"gridArea": "P" + props.playerId,
-		"--color": colors[props.playerId - 1],
+		"gridArea": "P" + playerId,
+		"--color": colors[playerId - 1],
 
-		"--dice-color": colors[props.playerId - 1],
+		"--dice-color": colors[playerId - 1],
 		// "--dice-border-color": "hsl(46, 96%, 40%)",
 		"--dice-dot-color": "#2b2b2b",
 	} as React.CSSProperties;
 
 	if (props.player.type == "none") {
 		return (
-			<div id={props.id} className={props.className} style={playerStyle}>
+			<div style={playerStyle}>
 				<ConnectPlayer player={props.player as AddPlayer} />
 			</div>
 		);
@@ -34,17 +35,17 @@ export function PlayerElement(props: { id?: string; className?: string; player: 
 	switch (props.player.type) {
 		case "robot":
 			return (
-				<div id={props.id} className={props.className} style={playerStyle}>
+				<div style={playerStyle}>
 					<PlayerLandscape player={props.player} />
 				</div>);
 		case "remote":
 			return (
-				<div id={props.id} className={props.className} style={playerStyle}>
+				<div style={playerStyle}>
 					<PlayerLandscape player={props.player} />
 				</div>);
 		case "local":
 			return (
-				<div id={props.id} className={props.className} style={playerStyle}>
+				<div style={playerStyle}>
 					<PlayerLandscape player={props.player} />
 				</div>
 			);
@@ -55,20 +56,24 @@ function PlayerLandscape(props: { player: PlayerInterface; }) {
 	const [value1, setValue1] = useState<DiceValue | null>(1);
 	const [value2, setValue2] = useState<DiceValue | null>(1);
 
-	const onClickDices = useCallback(async () => {
-		setValue1(null);
-		setValue2(null);
-		await new Promise((resolve) => setTimeout(resolve, 1000));
-		setValue1(RollDice());
-		setValue2(RollDice());
-	}, []);
+	props.player.onRollDices = (values) => {
+		setValue1(values[0]);
+		setValue2(values[0]);
+	};
+
+	const onClickDices = useCallback(() => {
+		if (props.player.type == "local")
+			props.player.triggerDiceRoll();
+	}, [props.player]);
+
+	const cursorStyle = props.player.canDiceRoll && props.player.type == "local" ? { cursor: "pointer" } : { cursor: "default" };
 
 	const inverted = (props.player.playerId == 2 || props.player.playerId == 4) ? styles.inverted : '';
 	return (
 		<div className={`${styles.landscape} ${styles.player} ${inverted}`}>
 			<div className={styles.playerName}>Player {props.player.playerId}</div>
 			<img src="/assets/defaultPFP.png" alt="Avatar" className={styles.avatar} />
-			<div onClick={onClickDices} className={styles.dicesContainer}>
+			<div onClick={onClickDices} className={styles.dicesContainer} style={cursorStyle}>
 				<Dice value={value1} />
 				<Dice value={value2} />
 			</div>
@@ -152,9 +157,6 @@ function ConnectPlayer(props: { player: AddPlayer; }) {
 	);
 }
 
-function RollDice() {
-	return (Math.floor(Math.random() * 6) + 1) as DiceValue;
-}
 function toBase64(str: string) {
 	const utf8Bytes = new TextEncoder().encode(str); // UTF-8 encoding
 	const binaryStr = String.fromCharCode(...utf8Bytes);
@@ -165,3 +167,5 @@ function fromBase64(base64: string) {
 	const bytes = Uint8Array.from(binaryStr, ch => ch.charCodeAt(0));
 	return new TextDecoder().decode(bytes);
 }
+
+export const MemoPlayerElement = memo(PlayerElement);

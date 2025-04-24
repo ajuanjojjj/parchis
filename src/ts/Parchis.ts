@@ -1,19 +1,40 @@
-import type { Application } from "pixi.js";
 import type { BoardInterface } from "../components/Board/BoardInterface";
 import { PixiPiece } from "../components/Piece";
+import { getMapStore, type MapStore } from "./Store";
+import type { DiceValue } from "../components/Dice/Dice";
 
 export class Parchis {
-	private board: BoardInterface;
-	private players: Map<number, PlayerInterface> = new Map();
-	private get allPlayers() {
-		return Array.from(this.players.values());
-	}
+	public readonly board: BoardInterface;
+	public players: MapStore<number, PlayerInterface>;
+
 	private get allPieces() {
-		return this.allPlayers.map(player => [...player.pieces.values()]).flat();
+		const players = this.players.values();
+		return players.map(player => [...player.pieces.values()]).flat();
+	}
+	private _playersTurn: number;
+
+	public get playersTurn() {
+		return this._playersTurn;
+	}
+	public nextTurn() {
+		const playersList = this.players.keys();
+		const currentPlayerIndex = playersList.indexOf(this._playersTurn);
+		if (currentPlayerIndex === -1) throw new Error(`Player ${this._playersTurn} not found in players list.`);
+
+		const nextPlayerIndex = (currentPlayerIndex + 1) % playersList.length;
+		this._playersTurn = playersList[nextPlayerIndex];
 	}
 
 	constructor(board: BoardInterface) {
 		this.board = board;
+		this._playersTurn = -1;
+
+		const players = new Map<number, PlayerInterface>();
+		for (let i = 1; i <= board.maxPlayers; i++) {
+			const player = new AddPlayer(i, this);
+			players.set(i, player);
+		}
+		this.players = getMapStore(players);
 	}
 
 	public movePiece(playerId: number, pieceId: number, newPosition: number, animate: boolean): number[] {
@@ -48,28 +69,6 @@ export class Parchis {
 		return extraMoves;
 	}
 
-	public addPlayer(player: PlayerInterface): void {
-		if (this.players.has(player.playerId)) {
-			throw new Error(`Player ${player.playerId} already exists.`);
-		}
-		this.players.set(player.playerId, player);
-	}
-	public removePlayer(playerId: number): void {
-		if (!this.players.has(playerId)) {
-			throw new Error(`Player ${playerId} does not exist.`);
-		}
-		this.players.delete(playerId);
-	}
-
-	public setApp(app: Application): void {
-		for (const player of this.players.values()) {
-			for (const piece of player.pieces.values()) {
-
-				const Piece1 = new PixiPiece(piece.pieceId, player.playerId, 1000 + (piece.pieceId + 1), this, this.board);
-				app.stage.addChild(Piece1.spriteRef);
-			}
-		}
-	}
 
 	// public possibleMoves(playerId: string, pieceId: number, diceValues: number[]): boolean {
 	// 	return true;
@@ -78,63 +77,113 @@ export class Parchis {
 	// private isValidMove(playerId: number, pieceId: number, newPosition: number): boolean {
 	// 	return true;
 	// }
+
 }
 
 
 
-export interface PlayerInterface {
-	type: "robot" | "remote" | "local" | "none";
-	playerId: number;
-	pieces: Map<number, PixiPiece>;
+export abstract class PlayerInterface {
+	public abstract readonly type: "robot" | "remote" | "local" | "none";
+	public readonly playerId: number;
+	public readonly pieces: Map<number, PixiPiece>;
+	public onRollDices: ((values: [DiceValue, DiceValue] | [null, null]) => void) | null = null;	// Callback to be called when the player rolls the dices
+	protected readonly game: Parchis;
 
-	triggerDiceRoll: () => void;
-	movePiece: (pieceId: number, newPosition: number) => void;
+	async triggerDiceRoll(): Promise<void> {
+		if (this.onRollDices == null) return;
 
-	get canDiceRoll(): boolean;
-	set canDiceRoll(value: boolean);
-}
+		this.onRollDices([
+			null,
+			null
+		]);
 
+		await new Promise((resolve) => setTimeout(resolve, 1000));
 
-export class LocalPlayer {
-	public readonly type: "robot" | "remote" | "local";
-	public readonly id: number;
-	public pieces: Map<number, PixiPiece> = new Map();
-	private _canDiceRoll: boolean = false;
-
-	constructor(playerId: number, piecesCount: number) {
-		this.id = playerId;
-		this.type = "local";
-	}
-
-
-	triggerDiceRoll(): void {
-
+		this.onRollDices([
+			RollDice(),
+			RollDice(),
+		]);
 	}
 	movePiece(pieceId: number, newPosition: number): void {
 
 	}
 
+
 	get canDiceRoll(): boolean {
-		return this._canDiceRoll;
+		return true;
+		return this.game.playersTurn === this.playerId;
 	}
-	set canDiceRoll(value: boolean) {
-		this._canDiceRoll = value;
+
+	constructor(playerId: number, game: Parchis) {
+		this.playerId = playerId;
+		this.game = game;
+		this.pieces = new Map<number, PixiPiece>();
 	}
 }
 
-export class AddPlayer {
+
+export class LocalPlayer extends PlayerInterface {
+	public readonly type = "local";
+
+	constructor(playerId: number, game: Parchis, customPiecesCount?: number) {
+		super(playerId, game);
+		console.log("Creating local player ", playerId, ", access it with window.parchis.player" + playerId);
+
+		const piecesCount = customPiecesCount ?? this.game.board.intendedPiecesCount;	// Default to board's pieces count if not specified
+		for (let i = 0; i < piecesCount; i++) {
+			const piece = new PixiPiece(playerId, i, 1000 + (i + 1), game, game.board);
+			this.pieces.set(i, piece);
+		}
+
+		// @ts-ignore -- This is a hack to access the player from the global window object
+		if (window.parchis == null) window.parchis = {};	// Create the parchis object if it doesn't exist
+		// @ts-ignore -- This is a hack to access the player from the global window object
+		window.parchis["player" + playerId] = this;
+	}
+}
+export class RobotPlayer extends PlayerInterface {
+	public readonly type = "robot";
+
+	constructor(playerId: number, game: Parchis, customPiecesCount?: number) {
+		super(playerId, game);
+		console.log("Creating local player ", playerId, ", access it with window.parchis.player" + playerId);
+
+		const piecesCount = customPiecesCount ?? this.game.board.intendedPiecesCount;	// Default to board's pieces count if not specified
+		for (let i = 0; i < piecesCount; i++) {
+			const piece = new PixiPiece(playerId, i, 1000 + (i + 1), game, game.board);
+			this.pieces.set(i, piece);
+		}
+
+		// @ts-ignore -- This is a hack to access the player from the global window object
+		if (window.parchis == null) window.parchis = {};	// Create the parchis object if it doesn't exist
+		// @ts-ignore -- This is a hack to access the player from the global window object
+		window.parchis["player" + playerId] = this;
+	}
+}
+
+export class AddPlayer extends PlayerInterface {
 	readonly type = "none";
-	playerId: number;
-	constructor(playerId: number) {
-		this.playerId = playerId;
+
+	constructor(playerId: number, game: Parchis) {
+		super(playerId, game);
 	}
 
 	setLocal(): void {
+		this.game.players.set(this.playerId,
+			new LocalPlayer(this.playerId, this.game)
+		);
 	}
 
 	setRemote(): void {
 	}
 
 	setRobot(): void {
+		this.game.players.set(this.playerId,
+			new RobotPlayer(this.playerId, this.game)
+		);
 	}
+}
+
+function RollDice(): DiceValue {
+	return (Math.floor(Math.random() * 6) + 1) as DiceValue;
 }

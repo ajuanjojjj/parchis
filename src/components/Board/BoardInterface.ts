@@ -46,6 +46,11 @@ export interface BoardInterface {
 	 * The number of players that can play on this board.
 	 */
 	get maxPlayers(): number;
+
+	/**
+	 * The number of pieces that each player has.
+	 */
+	get intendedPiecesCount(): number;
 }
 
 export class InvalidSquareError extends Error {
