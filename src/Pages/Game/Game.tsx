@@ -1,6 +1,6 @@
 import { useMemo, useSyncExternalStore } from 'react';
 import { PixiBoard } from '../../components/Board/PixiBoard';
-import { MemoPlayerElement } from '../../components/Player/Player';
+import { MemoPlayerElement } from '../../components/Player/PlayerBanner';
 import styles from './Game.module.css';
 import { Board4x_SVG } from '../../components/Board/Board4x_SVG';
 import { Parchis } from '../../ts/Parchis';

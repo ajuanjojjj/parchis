@@ -1,11 +1,11 @@
 import { memo, useCallback, useState } from 'react';
 import { Dice, type DiceValue } from '../Dice/Dice';
-import styles from './Player.module.css';
+import styles from './PlayerBanner.module.css';
 import { RTC_Host } from '../../ts/host';
 import { RTC_Client } from '../../ts/client';
-import type { AddPlayer, PlayerInterface } from '../../ts/Parchis';
+import type { AddPlayer, PlayerInterface } from '../../ts/Player';
 
-export function PlayerElement(props: { player: PlayerInterface | AddPlayer; }) {
+export function PlayerBanner(props: { player: PlayerInterface | AddPlayer; }) {
 	const playerId = props.player.playerId;
 	const colors = [
 		"#e94738",
@@ -168,4 +168,4 @@ function fromBase64(base64: string) {
 	return new TextDecoder().decode(bytes);
 }
 
-export const MemoPlayerElement = memo(PlayerElement);
+export const MemoPlayerElement = memo(PlayerBanner);

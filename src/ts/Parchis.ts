@@ -1,7 +1,6 @@
 import type { BoardInterface } from "../components/Board/BoardInterface";
-import { PixiPiece } from "../components/Piece";
 import { getMapStore, type MapStore } from "./Store";
-import type { DiceValue } from "../components/Dice/Dice";
+import { type PlayerInterface, AddPlayer } from "./Player";
 
 export class Parchis {
 	public readonly board: BoardInterface;
@@ -63,7 +62,12 @@ export class Parchis {
 		});
 
 		// Move the piece to the new position
-		piece.staticMove(newPosition, piecesCount, piecesAtPosition.length);
+		if (animate) {
+			// TODO Get all the steps and moves and such and animate the piece
+			piece.staticMove(newPosition, piecesCount, piecesAtPosition.length);
+		} else {
+			piece.staticMove(newPosition, piecesCount, piecesAtPosition.length);
+		}
 		piece.position = newPosition;	// Update the position of the piece
 
 		return extraMoves;
@@ -78,112 +82,4 @@ export class Parchis {
 	// 	return true;
 	// }
 
-}
-
-
-
-export abstract class PlayerInterface {
-	public abstract readonly type: "robot" | "remote" | "local" | "none";
-	public readonly playerId: number;
-	public readonly pieces: Map<number, PixiPiece>;
-	public onRollDices: ((values: [DiceValue, DiceValue] | [null, null]) => void) | null = null;	// Callback to be called when the player rolls the dices
-	protected readonly game: Parchis;
-
-	async triggerDiceRoll(): Promise<void> {
-		if (this.onRollDices == null) return;
-
-		this.onRollDices([
-			null,
-			null
-		]);
-
-		await new Promise((resolve) => setTimeout(resolve, 1000));
-
-		this.onRollDices([
-			RollDice(),
-			RollDice(),
-		]);
-	}
-	movePiece(pieceId: number, newPosition: number): void {
-
-	}
-
-
-	get canDiceRoll(): boolean {
-		return true;
-		return this.game.playersTurn === this.playerId;
-	}
-
-	constructor(playerId: number, game: Parchis) {
-		this.playerId = playerId;
-		this.game = game;
-		this.pieces = new Map<number, PixiPiece>();
-	}
-}
-
-
-export class LocalPlayer extends PlayerInterface {
-	public readonly type = "local";
-
-	constructor(playerId: number, game: Parchis, customPiecesCount?: number) {
-		super(playerId, game);
-		console.log("Creating local player ", playerId, ", access it with window.parchis.player" + playerId);
-
-		const piecesCount = customPiecesCount ?? this.game.board.intendedPiecesCount;	// Default to board's pieces count if not specified
-		for (let i = 0; i < piecesCount; i++) {
-			const piece = new PixiPiece(playerId, i, 1000 + (i + 1), game, game.board);
-			this.pieces.set(i, piece);
-		}
-
-		// @ts-ignore -- This is a hack to access the player from the global window object
-		if (window.parchis == null) window.parchis = {};	// Create the parchis object if it doesn't exist
-		// @ts-ignore -- This is a hack to access the player from the global window object
-		window.parchis["player" + playerId] = this;
-	}
-}
-export class RobotPlayer extends PlayerInterface {
-	public readonly type = "robot";
-
-	constructor(playerId: number, game: Parchis, customPiecesCount?: number) {
-		super(playerId, game);
-		console.log("Creating local player ", playerId, ", access it with window.parchis.player" + playerId);
-
-		const piecesCount = customPiecesCount ?? this.game.board.intendedPiecesCount;	// Default to board's pieces count if not specified
-		for (let i = 0; i < piecesCount; i++) {
-			const piece = new PixiPiece(playerId, i, 1000 + (i + 1), game, game.board);
-			this.pieces.set(i, piece);
-		}
-
-		// @ts-ignore -- This is a hack to access the player from the global window object
-		if (window.parchis == null) window.parchis = {};	// Create the parchis object if it doesn't exist
-		// @ts-ignore -- This is a hack to access the player from the global window object
-		window.parchis["player" + playerId] = this;
-	}
-}
-
-export class AddPlayer extends PlayerInterface {
-	readonly type = "none";
-
-	constructor(playerId: number, game: Parchis) {
-		super(playerId, game);
-	}
-
-	setLocal(): void {
-		this.game.players.set(this.playerId,
-			new LocalPlayer(this.playerId, this.game)
-		);
-	}
-
-	setRemote(): void {
-	}
-
-	setRobot(): void {
-		this.game.players.set(this.playerId,
-			new RobotPlayer(this.playerId, this.game)
-		);
-	}
-}
-
-function RollDice(): DiceValue {
-	return (Math.floor(Math.random() * 6) + 1) as DiceValue;
 }
