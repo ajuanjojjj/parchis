@@ -22,6 +22,7 @@ export class RTC_Client {
 		};
 	}
 
+	onConnection: () => void = () => { };
 	onMessage: (msg: string) => void = () => { };
 	onClose: () => void = () => { };
 
@@ -59,6 +60,9 @@ export class RTC_Client {
 	private setupDataChannel(channel: RTCDataChannel) {
 		this.dataChannel = channel;
 
+		channel.onopen = () => {
+			this.onConnection();
+		};
 		channel.onmessage = (event) => {
 			this.onMessage(event.data);
 		};

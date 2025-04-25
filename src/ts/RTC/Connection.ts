@@ -1,6 +1,7 @@
 import type { DiceValue } from "../../components/Dice/Dice";
 
 export interface RTC_Instance {
+	onConnection: () => void;
 	onMessage: (msg: string) => void;
 	onClose: () => void;
 

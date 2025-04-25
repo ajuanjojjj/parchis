@@ -1,8 +1,7 @@
 import { memo, useCallback, useState } from 'react';
 import { Dice, type DiceValue } from '../Dice/Dice';
 import styles from './PlayerBanner.module.css';
-import { RTC_Host, type RTC_Host_Offer } from '../../ts/RTC/host';
-import { RTC_Client, type RTC_Client_Response } from '../../ts/RTC/client';
+import { AddPlayerDialog } from './AddPlayerDialog';
 import type { AddPlayer, PlayerInterface } from '../../ts/Player';
 import type { Application } from 'pixi.js';
 
@@ -82,79 +81,16 @@ function PlayerLandscape(props: { player: PlayerInterface; }) {
 	);
 }
 function ConnectPlayer(props: { player: AddPlayer; app: Application | null; }) {
-	const onClickAdd = (async () => {
-		if (props.app == null) {
-			alert("App is not initialized yet. Please try again.");
-			return;
-		}
+	const [isDialogOpen, setDialogOpen] = useState(false);
 
-		const result = window.prompt(`Enter "bot" or "join" or "invite" or "local"`);
-		if (result == "local") return props.player.setLocal(props.app);
-		if (result == "bot") return props.player.setRobot(props.app);
-
-		if (result == "invite") {
-			let connection: RTC_Host_Offer;
-			const host = new RTC_Host();
-			try {
-				connection = await host.init();
-			} catch (error) {
-				console.error("Error initializing host:", error);
-				alert("Error initializing host. Please try again.");
-				return;
-			}
-			const connString = toBase64(JSON.stringify(connection));
-
-			try {
-				await navigator.clipboard.writeText(`\`\`\`${connString}\`\`\``);
-				console.log("Connection string copied to clipboard:", connString);
-				alert("Connection string copied to clipboard. Send it to the client.");
-			} catch {
-				alert("Send this to the client: " + connString);
-			}
-			const response = prompt("Paste the client response")?.trim().replace(/^```/, "").replace(/```$/, "");
-
-			try {
-				const parsed = JSON.parse(fromBase64(response ?? ""));
-				host.connectClient(parsed.answer, parsed.candidates);
-			} catch {
-				alert("asshole");
-				host.kill();
-				return;
-			}
-
-			return props.player.setHost(props.app, host);
-		}
-
-		if (result == "join") {
-			const offer = prompt("Paste the host offer")?.trim().replace(/^```/, "").replace(/```$/, "");
-			let response: RTC_Client_Response;
-			let client: RTC_Client;
-			try {
-				const parsed = JSON.parse(fromBase64(offer ?? ""));
-				client = new RTC_Client();
-				response = await client.init(parsed.offer, parsed.candidates);
-			} catch {
-				alert("asshole");
-				return;
-			}
-
-			const connString = toBase64(JSON.stringify(response));
-			try {
-				await navigator.clipboard.writeText(`\`\`\`${connString}\`\`\``);
-				console.log("Connection string copied to clipboard:", (response), connString);
-				alert("Connection string copied to clipboard. Send it to the client.");
-			} catch {
-				alert("Send this to the client: " + connString);
-			}
-
-
-			return props.player.setClient(props.app, client);
-		}
-	});
+	const onClickAdd = useCallback(() => setDialogOpen(true), []);
+	const onCloseDialog = useCallback(() => setDialogOpen(false), []);
 
 	const inverted = (props.player.playerId == 2 || props.player.playerId == 4) ? styles.inverted : '';
 	return (
 		<div className={`${styles.landscape} ${styles.player} ${inverted}`} onClick={onClickAdd}>
+			<AddPlayerDialog open={isDialogOpen} onClose={onCloseDialog} player={props.player} app={props.app} />
+
 			<div className={styles.playerName}>Player {props.player.playerId}</div>
 			<img src="/assets/avatars/addUser.svg" alt="Avatar" className={styles.avatar} />
 			<div style={{ flex: 1 }}></div>
@@ -162,15 +98,5 @@ function ConnectPlayer(props: { player: AddPlayer; app: Application | null; }) {
 	);
 }
 
-function toBase64(str: string) {
-	const utf8Bytes = new TextEncoder().encode(str); // UTF-8 encoding
-	const binaryStr = String.fromCharCode(...utf8Bytes);
-	return btoa(binaryStr);
-}
-function fromBase64(base64: string) {
-	const binaryStr = atob(base64);
-	const bytes = Uint8Array.from(binaryStr, ch => ch.charCodeAt(0));
-	return new TextDecoder().decode(bytes);
-}
 
 export const MemoPlayerElement = memo(PlayerBanner);
