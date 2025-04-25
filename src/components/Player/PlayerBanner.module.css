@@ -74,10 +74,23 @@
 }
 
 .myDialog::backdrop {
-	background-image: linear-gradient(45deg,
-			magenta,
-			rebeccapurple,
-			dodgerblue,
-			green);
+	background-image: linear-gradient(45deg, magenta, rebeccapurple, dodgerblue, green);
+	/* --hdr-gradient: linear-gradient(45deg, color(display-p3 25% 25% 100%) 0%, color(display-p3 100% 85% 30%) 33%, oklch(80% 0.3 163) 66%, oklch(80% 0.3 112) 100%);
+	--sdr-gradient: linear-gradient(to right, #4040ff 0%, #ffd713 33%, #00f382 66%, #c8ca00 100%);
+	background: var(--sdr-gradient); */
+
+	animation: gradient 15s ease infinite;
+	background-size: 400% 400%;
+
 	opacity: 0.75;
+}
+
+@keyframes gradient {
+	0% {
+		background-position: 0% 50%;
+	}
+
+	100% {
+		background-position: 100% 50%;
+	}
 }
