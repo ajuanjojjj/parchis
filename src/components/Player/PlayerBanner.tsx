@@ -72,7 +72,7 @@ function PlayerLandscape(props: { player: PlayerInterface; }) {
 	return (
 		<div className={`${styles.landscape} ${styles.player} ${inverted}`}>
 			<div className={styles.playerName}>Player {props.player.playerId}</div>
-			<img src="/assets/defaultPFP.png" alt="Avatar" className={styles.avatar} />
+			<img src="/assets/avatars/defaultPFP.png" alt="Avatar" className={styles.avatar} />
 			<div onClick={onClickDices} className={styles.dicesContainer} style={cursorStyle}>
 				<Dice value={value1} />
 				<Dice value={value2} />
