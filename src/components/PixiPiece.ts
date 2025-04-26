@@ -35,6 +35,7 @@ export class PixiPiece {
 		sprite
 			.on("pointerdown", () => this.onPointerDown())
 			.on("pointerup", () => this.onPointerUp())
+			.on("pointerupoutside", () => this.onPointerUp())
 			.on("globalmousemove", (event) => this.onDragMove(event))
 			;
 
@@ -73,7 +74,8 @@ export class PixiPiece {
 
 			const closest = this.board.getSquare({ x: this.sprite.x, y: this.sprite.y }, 7.5); // Get the closest square to the clicked position
 			if (closest == null) {
-				alert("You are not close enough to a position");
+				console.warn("You are not close enough to a position");
+				this.game.movePiece(this.playerId, this.pieceId, this.position, false);
 			} else {
 				this.game.movePiece(this.playerId, this.pieceId, closest, false);
 			}
