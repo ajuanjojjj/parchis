@@ -60,7 +60,7 @@ export class Board4x_SVG implements BoardInterface {
 	}
 
 	get backgroundURL(): string {
-		return "/assets/board.svg";
+		return "assets/board.svg";
 	}
 
 	get maxPlayers() { return 4; }

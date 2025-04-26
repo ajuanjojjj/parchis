@@ -20,11 +20,11 @@ export function usePixiApp(size: number) {
 			});
 
 			await Assets.load([
-				"/assets/board.svg",
-				"/assets/piece_red.svg",
-				"/assets/piece_blue.svg",
-				"/assets/piece_green.svg",
-				"/assets/piece_yellow.svg",
+				"assets/board.svg",
+				"assets/piece_red.svg",
+				"assets/piece_blue.svg",
+				"assets/piece_green.svg",
+				"assets/piece_yellow.svg",
 			]);
 
 
