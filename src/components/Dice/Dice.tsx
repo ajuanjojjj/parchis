@@ -2,7 +2,7 @@ import { useEffect, useRef } from "react";
 import { gsap } from "gsap"; // To animate the movement
 import "./Dice.css";
 
-export function Dice(props: { value: null | DiceValue; className?: string; }) {
+export function Dice(props: { value: null | DiceValue; }) {
 	const diceRef = useRef<HTMLDivElement>(null);
 	const rollingAnimation = useRef<gsap.core.Tween | null>(null);
 
@@ -40,7 +40,7 @@ export function Dice(props: { value: null | DiceValue; className?: string; }) {
 	}, [props.value]);
 
 	return (
-		<div className={`container ${props.className}`}>
+		<div className="container">
 			<div className={`cube`} ref={diceRef}>
 				<Side side="front" value={SideValues.front} />
 				<Side side="back" value={SideValues.back} />
