@@ -89,7 +89,7 @@ export class HostPlayer extends PlayerInterface {
 	}
 }
 export class ClientPlayer extends PlayerInterface {
-	public readonly type = "robot";
+	public readonly type = "remote";
 
 	constructor(playerId: number, game: Parchis, app: Application, customPiecesCount?: number) {
 		super(playerId, game);
