@@ -1,71 +1,188 @@
-@media only screen and (orientation: landscape) {
-	.portrait {
-		display: none;
-	}
-}
-
-@media only screen and (orientation: portrait) {
-	.landscape {
-		display: none;
-	}
-}
-
-
-
 .player {
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	justify-content: space-around;
 	border-color: inherit;
-	gap: 10px;
 	min-height: 100%;
+	display: flex;
 
-	&.inverted {
+	&.north {
+		flex-direction: column;
+	}
+
+	&.south {
 		flex-direction: column-reverse;
+	}
 
-		.dicesContainer::after {
-			bottom: 0;
-			transform: translateX(-50%) translateY(100%);
-			border-top: 3mm solid color-mix(in srgb, var(--color) 60%, transparent);
+
+
+
+
+	.playerName {
+		grid-area: Name;
+		padding: 0.25em;
+
+		span {
+			padding: 0.25em;
+			background: #00000080;
+			border-radius: 5px;
+			color: white;
+			text-wrap: nowrap;
 		}
 	}
 
-	.playerName {
-		background: #00000080;
-		padding: 5%;
-		border-radius: 5px;
-		color: white;
-	}
 
 	.avatar {
+		margin: 0.25em 0;
 		width: 2cm;
+		height: 2cm;
 		border-radius: 100%;
 		border: 1mm solid;
 		border-color: var(--color);
+		background: wheat;
+		grid-area: Avatar;
 	}
 
 	.dicesContainer {
 		display: flex;
-		flex-direction: column;
+		flex-direction: row;
 		gap: 5mm;
 		padding: 5mm;
 		border-radius: 5mm;
 		background: color-mix(in srgb, var(--color) 60%, transparent);
 		position: relative;
+		grid-area: Dices;
+
+		/* If landscape */
+		@media only screen and (orientation: landscape) {
+			flex-direction: column;
+		}
 
 		/* Caret on top */
 		&::after {
 			content: "";
 			position: absolute;
-			top: -0mm;
 			left: 50%;
-			transform: translateX(-50%) translateY(-100%);
 			border: 10px solid transparent;
-			border-bottom: 10px solid color-mix(in srgb, var(--color) 60%, transparent);
+		}
+	}
+}
+
+.player {
+	display: grid;
+	align-items: center;
+	justify-items: center;
+
+	@media only screen and (orientation: portrait) {
+
+		&.north {
+			&.west {
+				grid-template-columns: auto 1fr;
+				grid-template-areas:
+					"Avatar Dices"
+					"Name .";
+
+				.dicesContainer {
+					margin-left: 10px;
+
+					&::after {
+						left: 0;
+						transform: translateX(-100%) translateY(100%);
+						border-right: 10px solid color-mix(in srgb, var(--color) 60%, transparent);
+					}
+				}
+			}
+
+			&.east {
+				grid-template-columns: 1fr auto;
+				grid-template-areas:
+					"Dices Avatar"
+					". Name";
+
+				.dicesContainer {
+					margin-right: 10px;
+
+					&::after {
+						right: 0;
+						transform: translateX(100%) translateY(100%);
+						border-left: 10px solid color-mix(in srgb, var(--color) 60%, transparent);
+					}
+				}
+			}
 		}
 
+
+		&.south {
+			&.west {
+				grid-template-columns: auto 1fr;
+				grid-template-areas:
+					"Name ."
+					"Avatar Dices";
+
+				.dicesContainer {
+					margin-left: 10px;
+
+					&::after {
+						left: 0;
+						transform: translateX(-100%) translateY(100%);
+						border-right: 10px solid color-mix(in srgb, var(--color) 60%, transparent);
+					}
+				}
+			}
+
+			&.east {
+				grid-template-columns: 1fr auto;
+				grid-template-areas:
+					". Name"
+					"Dices Avatar";
+
+				.dicesContainer {
+					margin-right: 10px;
+
+					&::after {
+						right: 0;
+						transform: translateX(100%) translateY(100%);
+						border-left: 10px solid color-mix(in srgb, var(--color) 60%, transparent);
+					}
+				}
+			}
+		}
 	}
+
+	/* If landscape */
+	@media only screen and (orientation: landscape) {
+		&.north {
+			grid-template-rows: auto auto 1fr;
+			grid-template-areas: "Name" "Avatar" "Dices";
+
+
+			.dicesContainer {
+				margin-top: 10px;
+
+				&::after {
+					top: 0;
+					transform: translateX(-50%) translateY(-100%);
+					border-bottom: 10px solid color-mix(in srgb, var(--color) 60%, transparent);
+
+				}
+			}
+		}
+
+
+		&.south {
+			grid-template-rows: 1fr auto auto;
+			grid-template-areas: "Dices" "Avatar" "Name";
+
+			.dicesContainer {
+				margin-bottom: 10px;
+
+				&::after {
+					bottom: 0;
+					transform: translateX(-50%) translateY(100%);
+					border-top: 3mm solid color-mix(in srgb, var(--color) 60%, transparent);
+				}
+			}
+		}
+	}
+
+
 }
 
 .playerTypeButton {

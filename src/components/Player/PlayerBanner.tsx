@@ -32,24 +32,11 @@ export function PlayerBanner(props: { player: PlayerInterface | AddPlayer; app: 
 	}
 
 
-	switch (props.player.type) {
-		case "robot":
-			return (
-				<div style={playerStyle}>
-					<PlayerLandscape player={props.player} />
-				</div>);
-		case "remote":
-			return (
-				<div style={playerStyle}>
-					<PlayerLandscape player={props.player} />
-				</div>);
-		case "local":
-			return (
-				<div style={playerStyle}>
-					<PlayerLandscape player={props.player} />
-				</div>
-			);
-	}
+	return (
+		<div style={playerStyle}>
+			<PlayerLandscape player={props.player} />
+		</div>
+	);
 }
 
 function PlayerLandscape(props: { player: PlayerInterface; }) {
@@ -68,11 +55,16 @@ function PlayerLandscape(props: { player: PlayerInterface; }) {
 
 	const cursorStyle = props.player.canDiceRoll && props.player.type == "local" ? { cursor: "pointer" } : { cursor: "default" };
 
-	const inverted = (props.player.playerId == 2 || props.player.playerId == 4) ? styles.inverted : '';
+	const vertical = (props.player.playerId == 4 || props.player.playerId == 2) ? styles.south : styles.north;
+	const horizontal = (props.player.playerId == 3 || props.player.playerId == 2) ? styles.east : styles.west;
 	return (
-		<div className={`${styles.landscape} ${styles.player} ${inverted}`}>
-			<div className={styles.playerName}>Player {props.player.playerId}</div>
+		<div className={`${styles.player} ${vertical} ${horizontal}`}>
+			<div className={styles.playerName}>
+				<span>Player {props.player.playerId}</span>
+			</div>
+
 			<img src={getAvatar(props.player)} alt="Avatar" className={styles.avatar} />
+
 			<div onClick={onClickDices} className={styles.dicesContainer} style={cursorStyle}>
 				<Dice value={value1} />
 				<Dice value={value2} />
@@ -80,19 +72,24 @@ function PlayerLandscape(props: { player: PlayerInterface; }) {
 		</div>
 	);
 }
+
 function ConnectPlayer(props: { player: AddPlayer; app: Application | null; }) {
 	const [isDialogOpen, setDialogOpen] = useState(false);
 
 	const onClickAdd = useCallback(() => setDialogOpen(true), []);
 	const onCloseDialog = useCallback(() => setDialogOpen(false), []);
 
-	const inverted = (props.player.playerId == 2 || props.player.playerId == 4) ? styles.inverted : '';
 	const avatar = import.meta.env.BASE_URL + "assets/avatars/addUser.svg";
+
+	const vertical = (props.player.playerId == 4 || props.player.playerId == 2) ? styles.south : styles.north;
+	const horizontal = (props.player.playerId == 3 || props.player.playerId == 2) ? styles.east : styles.west;
 	return (
-		<div className={`${styles.landscape} ${styles.player} ${inverted}`} onClick={onClickAdd}>
+		<div className={`${styles.player} ${vertical} ${horizontal}`} onClick={onClickAdd}>
 			<AddPlayerDialog open={isDialogOpen} onClose={onCloseDialog} player={props.player} app={props.app} />
 
-			<div className={styles.playerName}>Player {props.player.playerId}</div>
+			<div className={styles.playerName}>
+				<span>Player {props.player.playerId}</span>
+			</div>
 			<img src={avatar} alt="Avatar" className={styles.avatar} />
 			<div style={{ flex: 1 }}></div>
 		</div>

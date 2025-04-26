@@ -6,9 +6,9 @@
 	grid-template-columns: auto 1fr auto;
 	grid-template-rows: auto 1fr auto;
 	grid-template-areas:
-		"P4 . P2"
+		"P1 . P3"
 		"Game Game Game"
-		"P1 . P3";
+		"P4 . P2";
 
 	background: url(/assets/background.jpg);
 	background-repeat: no-repeat;
