@@ -72,7 +72,7 @@ function PlayerLandscape(props: { player: PlayerInterface; }) {
 	return (
 		<div className={`${styles.landscape} ${styles.player} ${inverted}`}>
 			<div className={styles.playerName}>Player {props.player.playerId}</div>
-			<img src="/assets/avatars/defaultPFP.png" alt="Avatar" className={styles.avatar} />
+			<img src={getAvatar(props.player)} alt="Avatar" className={styles.avatar} />
 			<div onClick={onClickDices} className={styles.dicesContainer} style={cursorStyle}>
 				<Dice value={value1} />
 				<Dice value={value2} />
@@ -98,5 +98,15 @@ function ConnectPlayer(props: { player: AddPlayer; app: Application | null; }) {
 	);
 }
 
+function getAvatar(player: PlayerInterface) {
+	if (player.type == "local") {
+		return "/assets/avatars/local.svg";
+	} else if (player.type == "remote") {
+		return "/assets/avatars/remote.svg";
+	} else if (player.type == "robot") {
+		return "/assets/avatars/robot.svg";
+	}
+	return "/assets/avatars/addUser.svg";
+}
 
 export const MemoPlayerElement = memo(PlayerBanner);
