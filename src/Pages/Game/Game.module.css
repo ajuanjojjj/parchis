@@ -10,10 +10,10 @@
 		"Game Game Game"
 		"P1 . P3";
 
-	background: url(assets/background.jpg);
+	background: url(/assets/background.jpg);
 	background-repeat: no-repeat;
 	background-size: cover;
-	/* background: url(assets/background.webp); */
+	/* background: url(/assets/background.webp); */
 	/* background-repeat: repeat; */
 
 	/* If landscape */
