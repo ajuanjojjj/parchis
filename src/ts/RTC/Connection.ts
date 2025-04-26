@@ -30,4 +30,19 @@ export interface DiceResultMessage {
 	playerId: number;
 	result: [DiceValue, DiceValue];
 }
+export interface LobbyPlayersMessage {
+	// messageId: number;
+	type: "lobbyPlayers";
+	playerId: number;
+	players: Array<{
+		id: number;
+		name: string;
+		type: "player" | "bot";
+		hostedAt: number;
+		pieces: Array<{
+			id: number;
+			position: number;
+		}>;
+	}>;
+}
 export type RemoteMessage = MoveMessage | DiceRequestMessage | DiceResultMessage;

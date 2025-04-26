@@ -2,7 +2,7 @@ import { Assets, Sprite, type Application, type FederatedPointerEvent } from "pi
 import { gsap } from "gsap"; // To animate the movement
 import type { BoardInterface } from "./Board/BoardInterface";
 import { Howl } from "howler"; // For sound effects
-import type { Parchis } from "../ts/Parchis";
+import type { PlayerInterface } from "../ts/Player";
 
 
 export class PixiPiece {
@@ -12,14 +12,13 @@ export class PixiPiece {
 	private sound: Howl;
 
 	private board: BoardInterface;	// I need to know the board to get the coordinates i should move to
-	private game: Parchis;			// I need to know the game to report the move to the game
 
-	public readonly playerId: number;	// I need my identity to report the move to the game
-	public readonly pieceId: number;	// I need my identity to report the move to the game
-	public position: number;			// Tenicamente la posicion deberia estar en otra entidad. Tenicamente solo tendria la id compuesta y la posicion, asi que aqui se queda.
+	public readonly player: PlayerInterface;	// I need my identity to report the move to the game
+	public readonly pieceId: number;			// I need my identity to report the move to the game
+	public position: number;					// Tenicamente la posicion deberia estar en otra entidad. Tenicamente solo tendria la id compuesta y la posicion, asi que aqui se queda.
 
-	constructor(playerId: number, pieceId: number, position: number, game: Parchis, board: BoardInterface, app: Application) {
-		const color = (["red", "yellow", "blue", "green"] as const)[playerId - 1]!;
+	constructor(player: PlayerInterface, pieceId: number, position: number, board: BoardInterface, app: Application) {
+		const color = (["red", "yellow", "blue", "green"] as const)[player.playerId - 1]!;
 		const sprite = new Sprite();
 		const coords = board.getCoordinates(position, 1, 0);
 		sprite.x = coords.x;
@@ -27,22 +26,23 @@ export class PixiPiece {
 		sprite.width = 50;
 		sprite.height = 50;
 		sprite.anchor.set(0.5);
-		sprite.eventMode = 'static'; // Enables interactions like pointer/touch events
-		sprite.cursor = 'pointer';   // Shows hand cursor like buttonMode did
 		Assets.load(import.meta.env.BASE_URL + `assets/piece_${color}.svg`).then(texture => sprite.texture = texture); // Load the texture from the assets folder
 
 		// Dragging logic
-		sprite
-			.on("pointerdown", () => this.onPointerDown())
-			.on("pointerup", () => this.onPointerUp())
-			.on("pointerupoutside", () => this.onPointerUp())
-			.on("globalmousemove", (event) => this.onDragMove(event))
-			;
+		if (player.type == "local") {
+			sprite.eventMode = 'static'; // Enables interactions like pointer/touch events
+			sprite.cursor = 'pointer';   // Shows hand cursor like buttonMode did
+			sprite
+				.on("pointerdown", () => this.onPointerDown())
+				.on("pointerup", () => this.onPointerUp())
+				.on("pointerupoutside", () => this.onPointerUp())
+				.on("globalmousemove", (event) => this.onDragMove(event))
+				;
+		}
 
 		this.board = board;
 		this.sprite = sprite;
-		this.game = game;
-		this.playerId = playerId;
+		this.player = player;
 		this.pieceId = pieceId;
 
 		this.position = position;
@@ -75,9 +75,9 @@ export class PixiPiece {
 			const closest = this.board.getSquare({ x: this.sprite.x, y: this.sprite.y }, 7.5); // Get the closest square to the clicked position
 			if (closest == null) {
 				console.warn("You are not close enough to a position");
-				this.game.movePiece(this.playerId, this.pieceId, this.position, false);
+				this.player.movePiece(this.pieceId, this.position, false);
 			} else {
-				this.game.movePiece(this.playerId, this.pieceId, closest, false);
+				this.player.movePiece(this.pieceId, closest, false);
 			}
 		} else {
 			const newPos = window.prompt("Insert the new new position");
@@ -87,7 +87,7 @@ export class PixiPiece {
 					alert("Invalid position");
 					return;
 				}
-				this.game.movePiece(this.playerId, this.pieceId, newPosInt, true);
+				this.player.movePiece(this.pieceId, newPosInt, true);
 			}
 		}
 	}

@@ -38,6 +38,8 @@ export abstract class PlayerInterface {
 		return true;
 		return this.game.playersTurn === this.playerId;
 	}
+
+	abstract movePiece(pieceId: number, newPosition: number, animate: boolean): void;	// Move the piece to the new position. This function should be called by the game when the player moves a piece.
 }
 
 export class LocalPlayer extends PlayerInterface {
@@ -49,7 +51,7 @@ export class LocalPlayer extends PlayerInterface {
 
 		const piecesCount = customPiecesCount ?? this.game.board.intendedPiecesCount;	// Default to board's pieces count if not specified
 		for (let i = 0; i < piecesCount; i++) {
-			const piece = new PixiPiece(playerId, i, (1000 * playerId) + (i + 1), game, game.board, app);
+			const piece = new PixiPiece(this, i, (1000 * playerId) + (i + 1), game.board, app);
 			this.pieces.set(i, piece);
 		}
 
@@ -72,14 +74,14 @@ export class LocalPlayer extends PlayerInterface {
 	}
 }
 export class HostPlayer extends PlayerInterface {
-	public readonly type = "local";
+	public readonly type = "remote";
 
 	constructor(playerId: number, game: Parchis, app: Application, customPiecesCount?: number) {
 		super(playerId, game);
 
 		const piecesCount = customPiecesCount ?? this.game.board.intendedPiecesCount;	// Default to board's pieces count if not specified
 		for (let i = 0; i < piecesCount; i++) {
-			const piece = new PixiPiece(playerId, i, (1000 * playerId) + (i + 1), game, game.board, app);
+			const piece = new PixiPiece(this, i, (1000 * playerId) + (i + 1), game.board, app);
 			this.pieces.set(i, piece);
 		}
 	}
@@ -89,7 +91,7 @@ export class HostPlayer extends PlayerInterface {
 	}
 }
 export class ClientPlayer extends PlayerInterface {
-	public readonly type = "remote";
+	public readonly type = "local";
 
 	constructor(playerId: number, game: Parchis, app: Application, customPiecesCount?: number) {
 		super(playerId, game);
@@ -97,7 +99,7 @@ export class ClientPlayer extends PlayerInterface {
 
 		const piecesCount = customPiecesCount ?? this.game.board.intendedPiecesCount;	// Default to board's pieces count if not specified
 		for (let i = 0; i < piecesCount; i++) {
-			const piece = new PixiPiece(playerId, i, (1000 * playerId) + (i + 1), game, game.board, app);
+			const piece = new PixiPiece(this, i, (1000 * playerId) + (i + 1), game.board, app);
 			this.pieces.set(i, piece);
 		}
 
@@ -118,7 +120,6 @@ export class ClientPlayer extends PlayerInterface {
 		});
 	}
 }
-
 export class RobotPlayer extends PlayerInterface {
 	public readonly type = "robot";
 
@@ -128,7 +129,7 @@ export class RobotPlayer extends PlayerInterface {
 
 		const piecesCount = customPiecesCount ?? this.game.board.intendedPiecesCount;	// Default to board's pieces count if not specified
 		for (let i = 0; i < piecesCount; i++) {
-			const piece = new PixiPiece(playerId, i, (1000 * playerId) + (i + 1), game, game.board, app);
+			const piece = new PixiPiece(this, i, (1000 * playerId) + (i + 1), game.board, app);
 			this.pieces.set(i, piece);
 		}
 
@@ -218,6 +219,11 @@ export class AddPlayer extends PlayerInterface {
 		this.game.players.set(this.playerId,
 			new RobotPlayer(this.playerId, this.game, app)
 		);
+	}
+
+
+	movePiece(): void {
+		throw new Error("I'm not actually a player.");
 	}
 }
 

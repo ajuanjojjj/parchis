@@ -53,7 +53,7 @@ export class Parchis {
 		const extraMoves = new Array<number>();
 
 		const piecesAtNewPosition = this.allPieces
-			.filter(p => p.playerId != playerId || p.pieceId !== pieceId)	// Filter out the piece itself
+			.filter(p => p.player.playerId != playerId || p.pieceId !== pieceId)	// Filter out the piece itself
 			.filter(p => p.position === newPosition)	// Filter out the pieces at the new position
 			;
 
@@ -72,7 +72,7 @@ export class Parchis {
 		}
 
 		const piecesAtOldPosition = this.allPieces
-			.filter(p => p.playerId != playerId || p.pieceId !== pieceId)	// Filter out the piece itself
+			.filter(p => p.player.playerId != playerId || p.pieceId !== pieceId)	// Filter out the piece itself
 			.filter(p => p.position === piece.position)	// Filter out the pieces at the new position
 			;
 		piecesAtOldPosition.forEach((piece, index) => {	// Rearrange the current pieces
