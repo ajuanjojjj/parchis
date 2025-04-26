@@ -45,7 +45,7 @@ function PlayerLandscape(props: { player: PlayerInterface; }) {
 
 	props.player.onRollDices = (values) => {
 		setValue1(values[0]);
-		setValue2(values[0]);
+		setValue2(values[1]);
 	};
 
 	const onClickDices = useCallback(() => {
