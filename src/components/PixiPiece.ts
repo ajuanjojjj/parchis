@@ -29,7 +29,7 @@ export class PixiPiece {
 		sprite.anchor.set(0.5);
 		sprite.eventMode = 'static'; // Enables interactions like pointer/touch events
 		sprite.cursor = 'pointer';   // Shows hand cursor like buttonMode did
-		Assets.load(`assets/piece_${color}.svg`).then(texture => sprite.texture = texture); // Load the texture from the assets folder
+		Assets.load(import.meta.env.BASE_URL + `assets/piece_${color}.svg`).then(texture => sprite.texture = texture); // Load the texture from the assets folder
 
 		// Dragging logic
 		sprite

@@ -19,12 +19,13 @@ export function usePixiApp(size: number) {
 				backgroundColor: 0xf4a261,
 			});
 
+			const base = import.meta.env.BASE_URL + "assets/";
 			await Assets.load([
-				"assets/board.svg",
-				"assets/piece_red.svg",
-				"assets/piece_blue.svg",
-				"assets/piece_green.svg",
-				"assets/piece_yellow.svg",
+				base + "board.svg",
+				base + "piece_red.svg",
+				base + "piece_blue.svg",
+				base + "piece_green.svg",
+				base + "piece_yellow.svg",
 			]);
 
 
