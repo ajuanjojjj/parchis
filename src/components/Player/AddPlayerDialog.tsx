@@ -4,6 +4,7 @@ import { type RTC_Host_Offer, RTC_Host } from "../../ts/RTC/host";
 import type { AddPlayer, } from "../../ts/Player";
 import type { Application } from "pixi.js";
 import styles from "./PlayerBanner.module.css";
+import { Loader } from "../Loader";
 
 export function AddPlayerDialog(props: { open: boolean; onClose: () => void; player: AddPlayer; app: Application | null; }) {
 	const ref = useRef<HTMLDialogElement>(null);
@@ -288,33 +289,4 @@ function fromBase64(base64: string) {
 }
 
 
-function Loader() {
-	const loader = {
-		display: "flex",
-		justifyContent: "center",
-		alignItems: "center",
-	};
-	const loaderInner = {
-		width: "50px",
-		height: "50px",
-		border: "5px solid #ccc",
-		borderTop: "5px solid #3498db",
-		borderRadius: "50%",
-		animation: "spin 1s linear infinite",
-	};
 
-
-	return (
-		<div style={loader}>
-			<style>
-				{`
-					@keyframes spin {
-						0% { transform: rotate(0deg); }
-						100% { transform: rotate(360deg); }
-					}
-				`}
-			</style>
-			<div style={loaderInner}></div>
-		</div>
-	);
-}
