@@ -76,6 +76,11 @@ export function getMapStore<K, V>(initialValue: Map<K, V>): MapStore<K, V> {
 			if (lastKeys == undefined) throw new Error("lastKeys is undefined");
 			return lastKeys;
 		},
+
+		setMap: (newMap: Map<K, V>) => {
+			map = newMap;
+			store.notify();
+		}
 	};
 }
 
@@ -106,6 +111,11 @@ export interface MapStore<K, V> extends StoreInterface<Map<K, V>> {
 	 * @returns The keys of the store as an array.
 	 */
 	keys: () => K[];
+
+	/**
+	 * @param newMap - The new map to be set in the store.
+	 */
+	setMap: (newMap: Map<K, V>) => void;
 }
 
 

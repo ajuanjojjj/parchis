@@ -4,7 +4,9 @@ import type { BoardInterface } from "./Board/BoardInterface";
 import { Howl } from "howler"; // For sound effects
 import type { PlayerInterface } from "../ts/Player";
 
-
+interface ConstructorParams {
+	player: PlayerInterface, pieceId: number, position: number, board: BoardInterface, app: Application;
+}
 export class PixiPiece {
 	private sprite: Sprite;
 	private dragging: boolean = false;
@@ -17,10 +19,10 @@ export class PixiPiece {
 	public readonly pieceId: number;			// I need my identity to report the move to the game
 	public position: number;					// Tenicamente la posicion deberia estar en otra entidad. Tenicamente solo tendria la id compuesta y la posicion, asi que aqui se queda.
 
-	constructor(player: PlayerInterface, pieceId: number, position: number, board: BoardInterface, app: Application) {
-		const color = (["red", "yellow", "blue", "green"] as const)[player.playerId - 1]!;
+	constructor(params: ConstructorParams) {
+		const color = (["red", "yellow", "blue", "green"] as const)[params.player.playerId - 1]!;
 		const sprite = new Sprite();
-		const coords = board.getCoordinates(position, 1, 0);
+		const coords = params.board.getCoordinates(params.position, 1, 0);
 		sprite.x = coords.x;
 		sprite.y = coords.y;
 		sprite.width = 50;
@@ -29,7 +31,7 @@ export class PixiPiece {
 		Assets.load(import.meta.env.BASE_URL + `assets/piece_${color}.svg`).then(texture => sprite.texture = texture); // Load the texture from the assets folder
 
 		// Dragging logic
-		if (player.type == "local") {
+		if (params.player.type == "local") {
 			sprite.eventMode = 'static'; // Enables interactions like pointer/touch events
 			sprite.cursor = 'pointer';   // Shows hand cursor like buttonMode did
 			sprite
@@ -40,16 +42,16 @@ export class PixiPiece {
 				;
 		}
 
-		this.board = board;
+		this.board = params.board;
 		this.sprite = sprite;
-		this.player = player;
-		this.pieceId = pieceId;
+		this.player = params.player;
+		this.pieceId = params.pieceId;
 
-		this.position = position;
+		this.position = params.position;
 
 		this.sound = getSounds();
 
-		app.stage.addChild(sprite); // Add the sprite to the stage
+		params.app.stage.addChild(sprite); // Add the sprite to the stage
 	}
 
 	private onPointerDown() {

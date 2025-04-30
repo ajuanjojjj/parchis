@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Input } from "../../components/Input";
-import { RTC_Host, type RTC_Host_Offer } from "../../ts/RTC/host";
-import { RTC_Client, type RTC_Client_Response } from "../../ts/RTC/client";
+import { RTC_Host, type RTC_Host_Offer } from "../../ts/remote/RPC_Host";
+import { RTC_Client, type RTC_Client_Response } from "../../ts/remote/RPC_Client";
 
 export function RTC() {
 	const [mode, setMode] = useState<null | "host" | "client">(null);

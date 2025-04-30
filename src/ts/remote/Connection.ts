@@ -1,11 +1,11 @@
 import type { DiceValue } from "../../components/Dice/Dice";
 
-export interface RTC_Instance {
+export interface Connection_Instance {
 	onConnection: () => void;
 	onMessage: (msg: string) => void;
 	onClose: () => void;
 
-	sendMessage(message: string): void;
+	sendMessage(message: RemoteMessage): void;
 
 	kill(): void;
 }
@@ -30,19 +30,26 @@ export interface DiceResultMessage {
 	playerId: number;
 	result: [DiceValue, DiceValue];
 }
-export interface LobbyPlayersMessage {
+
+export interface StateMessage {
 	// messageId: number;
-	type: "lobbyPlayers";
-	playerId: number;
-	players: Array<{
-		id: number;
-		name: string;
-		type: "player" | "bot";
-		hostedAt: number;
-		pieces: Array<{
-			id: number;
-			position: number;
-		}>;
-	}>;
+	type: "state";
+	state: ParchisState;
 }
-export type RemoteMessage = MoveMessage | DiceRequestMessage | DiceResultMessage;
+export type RemoteMessage = MoveMessage | DiceRequestMessage | DiceResultMessage | StateMessage;
+
+
+export interface ParchisState {
+	players: PlayerState[];
+	// board: BoardInterface;
+}
+export interface PlayerState {
+	playerId: number;
+	hostId: string;
+	type: "robot" | "player";
+	pieces: PieceState[];
+}
+export interface PieceState {
+	pieceId: number;
+	position: number;
+}
